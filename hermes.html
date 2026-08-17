@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NemoClaw + Hermes · คู่มือ DGX Spark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"></header>
+    <div class="page">
+      <aside class="side">
+        <input class="search" id="q" type="search" placeholder="ค้นในหน้า Hermes...">
+        <nav class="nav">
+          <div class="group">เอเจนต์</div>
+          <a href="#what">สองโปรแกรมนี้ต่างกันยังไง</a>
+          <a href="#now">สถานะบนเครื่องนี้</a>
+          <a href="#check">ขั้นที่ 1 ตรวจสถานะ</a>
+          <a href="#dash">ขั้นที่ 2 เปิดแดชบอร์ด</a>
+          <a href="#ui">ขั้นที่ 3 รู้จักหน้าจอ</a>
+          <a href="#talk">ขั้นที่ 4 คุยใน Chat</a>
+          <a href="#sessions">ขั้นที่ 5 ดูเซสชันและ Telegram</a>
+          <a href="#cli">ขั้นที่ 6 คำสั่งที่ใช้บ่อย</a>
+          <a href="#model">ขั้นที่ 7 โมเดลที่เอเจนต์เรียก</a>
+          <a href="#name">ขั้นที่ 8 ชื่อโมเดลต้องตรง</a>
+          <a href="#fix">ปัญหาที่เจอบนเครื่องนี้</a>
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="hero">
+          <div class="kicker">หมวดเอเจนต์ · พอร์ต 18789</div>
+          <h1>ใช้ NemoClaw และ Hermes Agent</h1>
+          <p class="lede">คนละระบบกับ Open WebUI Hermes อยู่ใน sandbox แยก ทำได้ทั้งคุย เรียกเครื่องมือ ตั้ง cron และรับงานจาก Telegram ภาพด้านล่างแคปจากแดชบอร์ดจริงบนเครื่องนี้</p>
+        </header>
+
+        <section id="what">
+          <h2>สองโปรแกรมนี้ต่างกันยังไง</h2>
+          <div class="grid">
+            <article class="card">
+              <h3>NemoClaw</h3>
+              <p>ตัวจัดการ sandbox เปิด ปิด ดูสถานะ ซ่อม gateway และพิมพ์ URL แดชบอร์ด คำสั่งบนเครื่องนี้คือ <code>nemoclaw</code> ชื่อ sandbox คือ <code>hermes</code></p>
+            </article>
+            <article class="card">
+              <h3>Hermes Agent</h3>
+              <p>เอเจนต์จริงที่อยู่ใน sandbox เวอร์ชันบนเครื่องนี้คือ <strong>0.19.0</strong> มีแดชบอร์ด Chat / Sessions / Files / Cron / Skills รันงานเองได้</p>
+            </article>
+          </div>
+          <p><code>nemohermes</code> คือคำสั่งชุดเดียวกับ <code>nemoclaw</code> บนเครื่องนี้ ใช้ตัวไหนก็ได้ แนะนำใช้ <code>nemoclaw</code> ให้ตรงกับที่ระบบลงไว้</p>
+          <div class="shot-grid">
+            <figure class="shot">
+              <img src="assets/shots/focus/hermes-sessions.png" alt="เซสชัน Hermes ใช้ Qwen 35B">
+              <figcaption>Hermes คือหน้าเว็บเอเจนต์ที่ :18789 เซสชันจริงใช้ Qwen 35B ชื่อเต็ม</figcaption>
+            </figure>
+            <figure class="shot">
+              <img src="assets/shots/term-nemoclaw-list.png" alt="คำสั่ง nemoclaw list">
+              <figcaption>NemoClaw คือคำสั่งที่ถือกรง ผลจริงมี sandbox เดียวชื่อ hermes</figcaption>
+            </figure>
+          </div>
+          <div class="callout tip">อย่าสับสนกับ Open WebUI ที่พอร์ต 18473 อันนั้นคือแชทธรรมดา Hermes คือเอเจนต์ในกรง sandbox</div>
+        </section>
+
+        <section id="now">
+          <h2>สถานะบนเครื่องนี้</h2>
+          <p>ตรวจจากคำสั่งจริง วันที่ 17 สิงหาคม 2026</p>
+          <ul>
+            <li>sandbox ชื่อ <code>hermes</code> เป็นค่าเริ่มต้น</li>
+            <li>แดชบอร์ด <a href="http://127.0.0.1:18789/">http://127.0.0.1:18789/</a> เปิดได้จากเครื่อง DGX เท่านั้น</li>
+            <li>เอเจนต์: Hermes 0.19.0 · Gateway Status: Running</li>
+            <li>โมเดลที่ตั้งไว้: <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> ผ่าน vLLM บนโฮสต์</li>
+            <li>ช่องทางที่ต่อแล้ว: Chat ในแดชบอร์ด และ Telegram</li>
+            <li>นโยบาย sandbox: npm, huggingface, brew, local-inference, telegram</li>
+          </ul>
+          <figure class="shot">
+            <img src="assets/shots/term-nemoclaw-list.png" alt="ผลลัพธ์คำสั่ง nemoclaw list">
+            <figcaption>คำสั่ง <code>nemoclaw list</code> จริง มี sandbox เดียวชื่อ hermes และชี้แดชบอร์ดไปที่พอร์ต 18789</figcaption>
+          </figure>
+        </section>
+
+        <section id="check">
+          <h2>ขั้นที่ 1 ตรวจสถานะ</h2>
+          <ol class="steps">
+            <li>
+              <div class="title">เปิดเทอร์มินัลบนเครื่อง DGX</div>
+              <p>กด <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd></p>
+            </li>
+            <li>
+              <div class="title">ดูภาพรวมทุก sandbox</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>nemoclaw status</pre></div>
+            </li>
+            <li>
+              <div class="title">ดูรายการ sandbox</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>nemoclaw list</pre></div>
+              <p>ต้องเห็น <code>hermes *</code> ดาวหมายถึงเป็นค่าเริ่มต้น</p>
+            </li>
+            <li>
+              <div class="title">ตรวจสุขภาพแบบละเอียด</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>nemoclaw hermes doctor</pre></div>
+              <p>ถ้าสรุปท้ายสุดเป็น <code>Summary: healthy</code> แปลว่าระบบหลักปกติ</p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/term-nemoclaw-status.png" alt="ผลลัพธ์ nemoclaw status">
+            <figcaption>สถานะจริง: sandbox hermes ชี้โมเดล Qwen 35B และแดชบอร์ดพอร์ต 18789</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/term-nemoclaw-doctor.png" alt="ผลลัพธ์ nemoclaw hermes doctor">
+            <figcaption>doctor บนเครื่องนี้สรุป healthy Docker, OpenShell, sandbox และ gateway ผ่าน</figcaption>
+          </figure>
+        </section>
+
+        <section id="dash">
+          <h2>ขั้นที่ 2 เปิดแดชบอร์ด</h2>
+          <ol class="steps">
+            <li>
+              <div class="title">พิมพ์หา URL ถ้าจำไม่ได้</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>nemoclaw hermes dashboard-url</pre></div>
+            </li>
+            <li>
+              <div class="title">เปิดเบราว์เซอร์บนเครื่อง DGX</div>
+            </li>
+            <li>
+              <div class="title">ไปที่ที่อยู่นี้แล้วกด Enter</div>
+              <p><a href="http://127.0.0.1:18789/">http://127.0.0.1:18789/</a></p>
+              <p>หน้าต่างนี้ฟังที่ 127.0.0.1 เท่านั้น จากมือถือในบ้านเข้าตรง ๆ ไม่ได้</p>
+            </li>
+            <li>
+              <div class="title">ดูว่าขึ้นหัวข้อ HERMES AGENT มุมซ้ายบน</div>
+              <p>มุมล่างซ้ายต้องมี <strong>Gateway Status: Running</strong></p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/term-nemoclaw-dash.png" alt="คำสั่ง dashboard-url">
+            <figcaption>คำสั่งจริงพิมพ์ URL ให้ คือ http://127.0.0.1:18789/</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/focus/hermes-sessions.png" alt="หน้า Sessions ของ Hermes">
+            <figcaption>หน้า Sessions จริง: Telegram ต่ออยู่ และเซสชันใช้ Qwen 35B ชื่อเต็ม</figcaption>
+          </figure>
+        </section>
+
+        <section id="ui">
+          <h2>ขั้นที่ 3 รู้จักหน้าจอ</h2>
+          <p>เมนูซ้ายแต่ละอันมีหน้าที่คนละอย่าง จำไอคอนในแถบซ้ายของภาพจริงด้านล่าง</p>
+          <figure class="shot">
+            <img src="assets/shots/focus/hermes-menu.png" alt="เมนูซ้ายของ Hermes">
+            <figcaption>ซ้ายคือเมนู CHAT / SESSIONS / FILES / MODELS มุมล่างซ้ายต้องเห็น Gateway Status: Running</figcaption>
+          </figure>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>เมนู</th><th>หน้าที่</th></tr></thead>
+              <tbody>
+                <tr><td>CHAT</td><td>คุยกับเอเจนต์ในกล่องข้อความ</td></tr>
+                <tr><td>SESSIONS</td><td>ดูห้องสนทนาทั้งหมด และช่องทางที่ต่ออยู่</td></tr>
+                <tr><td>FILES</td><td>ไฟล์ใน sandbox</td></tr>
+                <tr><td>MODELS</td><td>โมเดลที่เอเจนต์เรียก</td></tr>
+                <tr><td>LOGS</td><td>บันทึกการทำงาน</td></tr>
+                <tr><td>CRON</td><td>งานตามเวลา เช่น health check</td></tr>
+                <tr><td>SKILLS / PLUGINS / MCP</td><td>เครื่องมือที่เอเจนต์เรียกได้</td></tr>
+                <tr><td>CHANNELS</td><td>ช่องทางภายนอก เช่น Telegram</td></tr>
+                <tr><td>CONFIG / KEYS / SYSTEM</td><td>ค่าตั้ง รหัส และสถานะระบบ</td></tr>
+                <tr><td>DOCUMENTATION</td><td>รายการ API ของ Hermes</td></tr>
+                <tr><td>Restart Gateway</td><td>รีสตาร์ทโปรเซสเอเจนต์ใน sandbox</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="talk">
+          <h2>ขั้นที่ 4 คุยใน Chat</h2>
+          <ol class="steps">
+            <li>
+              <div class="title">คลิก <strong>CHAT</strong> ทางซ้าย</div>
+            </li>
+            <li>
+              <div class="title">ดูมุมขวาบนว่ามีป้าย live</div>
+              <p>ต้องเห็นชื่อโมเดลและจุดเขียว live</p>
+            </li>
+            <li>
+              <div class="title">คลิก <strong>New chat</strong> ถ้าอยากเริ่มห้องใหม่</div>
+            </li>
+            <li>
+              <div class="title">คลิกช่องพิมพ์ด้านล่าง แล้วพิมพ์ข้อความ</div>
+              <p>หน้าจอจริงมีคำใบ้เช่น <code>explain this codebase</code></p>
+            </li>
+            <li>
+              <div class="title">กด Enter เพื่อส่ง</div>
+            </li>
+            <li>
+              <div class="title">รอคำตอบในพื้นที่สีดำตรงกลาง</div>
+              <p>เอเจนต์มีเครื่องมือ เช่น อ่านไฟล์ รันโค้ด และค้นใน sandbox ไม่ใช่แค่พิมพ์ตอบ</p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/hermes-chat-now.png" alt="หน้า Chat ของ Hermes ตอนล่าสุด">
+            <figcaption>หน้า Chat จริงล่าสุดบนเครื่องนี้ ใช้คุยกับเอเจนต์หลังจากโมเดลชื่อตรงแล้ว</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/hermes-chat.png" alt="หน้า Chat ของ Hermes Agent">
+            <figcaption>หน้า Chat จริง เวอร์ชัน 0.19.0 Gateway Status: Running มุมขวามีรายการเซสชันจาก Telegram, cron และแชทในแดชบอร์ด</figcaption>
+          </figure>
+        </section>
+
+        <section id="sessions">
+          <h2>ขั้นที่ 5 ดูเซสชันและ Telegram</h2>
+          <ol class="steps">
+            <li>
+              <div class="title">คลิก <strong>SESSIONS</strong> ทางซ้าย</div>
+            </li>
+            <li>
+              <div class="title">ดูกล่อง CONNECTED PLATFORMS</div>
+              <p>บนเครื่องนี้มี <code>api_server</code> และ <code>telegram</code> สถานะ Connected</p>
+            </li>
+            <li>
+              <div class="title">ดู RECENT SESSIONS</div>
+              <p>ห้องที่มีป้าย telegram คือคุยผ่านบอท ห้องที่เป็น cron คืองานตามเวลา</p>
+            </li>
+            <li>
+              <div class="title">คลิกห้องเพื่อเปิดต่อใน Chat</div>
+            </li>
+          </ol>
+          <div class="callout tip">Telegram ถูกตั้งไว้แล้วบนเครื่องนี้ ไม่ต้องใส่ token ใหม่ถ้ายังใช้บอทเดิม อย่าแปะ token ลงเทอร์มินัลหรือคู่มือ</div>
+        </section>
+
+        <section id="cli">
+          <h2>ขั้นที่ 6 คำสั่งที่ใช้บ่อย</h2>
+          <p>พิมพ์ในเทอร์มินัลบนเครื่อง DGX ชื่อ sandbox คือ <code>hermes</code></p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>คำสั่ง</th><th>ทำอะไร</th></tr></thead>
+              <tbody>
+                <tr><td><code>nemoclaw status</code></td><td>ภาพรวมทุก sandbox</td></tr>
+                <tr><td><code>nemoclaw list</code></td><td>รายการ sandbox และ URL แดชบอร์ด</td></tr>
+                <tr><td><code>nemoclaw hermes status</code></td><td>สถานะ sandbox นี้ รวมเส้นโมเดล</td></tr>
+                <tr><td><code>nemoclaw hermes doctor</code></td><td>ตรวจสุขภาพทีละชั้น</td></tr>
+                <tr><td><code>nemoclaw hermes dashboard-url</code></td><td>พิมพ์ URL แดชบอร์ด</td></tr>
+                <tr><td><code>nemoclaw launch hermes</code></td><td>ต่อเข้า sandbox แล้วสตาร์ทเอเจนต์</td></tr>
+                <tr><td><code>nemoclaw hermes connect</code></td><td>เปิดเชลล์เข้าไปใน sandbox</td></tr>
+                <tr><td><code>nemoclaw hermes logs --tail 50</code></td><td>ดูล็อกล่าสุด</td></tr>
+                <tr><td><code>nemoclaw hermes stop</code></td><td>หยุดคอนเทนเนอร์ แต่เก็บงานไว้</td></tr>
+                <tr><td><code>nemoclaw hermes start</code></td><td>เปิด sandbox ที่หยุดไว้กลับมา</td></tr>
+                <tr><td><code>nemoclaw hermes recover</code></td><td>ซ่อม gateway และพอร์ต forward</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout warn">อย่าใช้ <code>nemoclaw hermes destroy</code> ถ้ายังอยากเก็บ sandbox นี้ คำสั่งนั้นลบทั้งกรง</div>
+        </section>
+
+        <section id="model">
+          <h2>ขั้นที่ 7 โมเดลที่เอเจนต์เรียก</h2>
+          <p>Hermes ในกรง sandbox <strong>ไม่ได้โหลดน้ำหนักโมเดลเอง</strong> มันเป็นโปรแกรมเอเจนต์ที่ส่งคำขอออกไปหา vLLM บนเครื่องโฮสต์</p>
+          <p>เส้นทางจริงมีสองชื่อของที่เดียวกัน</p>
+          <ul>
+            <li>ในกรง Hermes เรียกโฮสต์ว่า <code>https://inference.local/v1/models</code></li>
+            <li>บนเครื่องโฮสต์ จุดนั้นคือ <code>http://127.0.0.1:8000/v1/models</code></li>
+          </ul>
+          <p>ดังนั้นแดชบอร์ดที่พอร์ต 18789 เปิดได้แม้โมเดลยังไม่พร้อม เพราะแดชบอร์ดเป็นแค่หน้าเว็บของเอเจนต์ พอส่งข้อความ เอเจนต์ถึงจะยิงไปที่ vLLM ถ้าตอนนั้นชื่อไม่ตรงหรือพอร์ต 8000 ว่าง จะพัง</p>
+          <ol class="steps">
+            <li>
+              <div class="title">ตรวจว่าโมเดลภาษาเปิดอยู่บนโฮสต์ ไม่ใช่ในกรง</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>llm-status</pre></div>
+              <p>ต้องเห็นคอนเทนเนอร์โมเดล running และมี API model ถ้าขึ้น Model: stopped แปลว่า Hermes ไม่มีใครให้ถาม</p>
+            </li>
+            <li>
+              <div class="title">เปิด Qwen 35B ด้วยคำสั่งที่ขึ้นต้นด้วย start-</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>start-qwen35</pre></div>
+              <p>อย่าพิมพ์ <code>qwen35-start</code> คำสั่งนั้นเปิดคอนเทนเนอร์คนละตัวชื่อ <code>nemoclaw-vllm</code> อธิบายครบอยู่ที่ <a href="models.html#why">หมวดโมเดล · เรื่องที่เกิดจริง</a></p>
+            </li>
+            <li>
+              <div class="title">รอ Ready แล้วดูว่ามีชื่อเต็ม</div>
+              <p>ต้องเห็น <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> เพราะนี่คือสตริงที่ Hermes ใส่ในทุกคำขอ ชื่อใกล้เคียงแต่ไม่ตรงตัวอักษรจะ 404</p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/focus/webui-center.png" alt="ชื่อเต็มบนหน้าแชทที่ Hermes ใช้">
+            <figcaption>ชื่อตรงกลางหน้าแชทต้องเป็นชื่อเดียวกับที่ Hermes ยิง</figcaption>
+          </figure>
+        </section>
+
+        <section id="name">
+          <h2>ขั้นที่ 8 ชื่อโมเดลต้องตรง ทีละขั้น</h2>
+          <p>คิดเป็นสามฝ่าย คนละหน้าที่ ห้ามปน</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ฝ่าย</th><th>ทำอะไร</th><th>มองหาชื่ออะไร</th></tr></thead>
+              <tbody>
+                <tr><td>ไฟล์บนดิสก์</td><td>เก็บน้ำหนักโมเดลประมาณ 22 GB</td><td>โฟลเดอร์ <code>models--nvidia--Qwen3.6-35B-A3B-NVFP4</code></td></tr>
+                <tr><td>vLLM พอร์ต 8000</td><td>โหลดไฟล์แล้วประกาศชื่อให้คนอื่นเรียก</td><td>ตอนนี้ประกาศทั้งชื่อเต็มและชื่อสั้น</td></tr>
+                <tr><td>Hermes</td><td>ยิงแชทไปที่ vLLM</td><td>ชื่อเต็ม <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> เท่านั้น</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Open WebUI ถามรายการแล้วให้คนเลือก จึงใช้ชื่อสั้นได้ Hermes ไม่เลือกจากรายการ มันยิงชื่อที่ตั้งไว้ตรง ๆ</p>
+          <p>สูตรเก่าของ <code>start-qwen35</code> ประกาศแค่ <code>Qwen3.6-35B</code> เลยเกิดภาพลวงตาว่า “แชทได้แต่เอเจนต์พัง” ทั้งที่โหลดโมเดลก้อนเดียวกัน</p>
+          <ol class="steps">
+            <li>
+              <div class="title">ถาม vLLM ว่าประกาศชื่ออะไร</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>curl -s http://127.0.0.1:8000/v1/models | python3 -m json.tool</pre></div>
+            </li>
+            <li>
+              <div class="title">หาคำว่า nvidia/Qwen3.6-35B-A3B-NVFP4 ในช่อง id</div>
+              <p>เจอ = Hermes เรียกได้ ไม่เจอ = ยังใช้สูตรเก่า หรือเปิดโมเดลคนละตัวอยู่</p>
+            </li>
+            <li>
+              <div class="title">ทดลองชื่อผิดเพื่อจำอาการ 404</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>curl -s http://127.0.0.1:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"Qwen3.6-35B-WRONG","messages":[{"role":"user","content":"hi"}]}'</pre></div>
+              <p>ต้องได้ข้อความประมาณ <code>The model Qwen3.6-35B-WRONG does not exist</code> รหัส 404 นี่คือสิ่งที่ Hermes เคยได้รับเมื่อชื่อไม่ตรง</p>
+            </li>
+            <li>
+              <div class="title">ถาม Hermes อีกชั้น</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>nemoclaw hermes status</pre></div>
+              <p>บรรทัด Model ต้องเป็นชื่อเต็ม บรรทัด Inference (vllm backend) ต้องเป็น <strong>healthy</strong></p>
+            </li>
+            <li>
+              <div class="title">ค่อยเปิดแดชบอร์ดแล้วส่งข้อความในห้องใหม่</div>
+              <p>เปิด <a href="http://127.0.0.1:18789/">http://127.0.0.1:18789/</a> จากเครื่อง DGX อย่าส่งต่อในห้องที่ error 404 ค้างไว้ เพราะข้อความเก่าจะยังโชว์อยู่</p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/term-name-404.png" alt="ตัวอย่าง 404 เมื่อชื่อโมเดลไม่ตรง">
+            <figcaption>ผลจริง: ชื่อผิดหนึ่งตัวอักษรก็พอให้ vLLM ตอบ 404 ทั้งที่โมเดลโหลดอยู่</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/term-models-json.png" alt="API แสดงทั้งชื่อเต็มและชื่อสั้น">
+            <figcaption>ผลจริงหลังปรับสูตร: vLLM เสิร์ฟทั้งชื่อเต็มที่ Hermes ใช้ และชื่อสั้นที่ Open WebUI ใช้</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/term-hermes-now.png" alt="Hermes status healthy">
+            <figcaption>ผลจริง: Model เป็นชื่อเต็ม และ Inference (vllm backend) เป็น healthy</figcaption>
+          </figure>
+          <p>อธิบายระดับไฟล์คำสั่งและตัวเลข RAM อยู่ที่ <a href="models.html#why">หมวดโมเดล · เรื่องที่เกิดจริง</a></p>
+        </section>
+
+        <section id="fix">
+          <h2>ปัญหาที่เจอบนเครื่องนี้</h2>
+          <h3>แดชบอร์ดเปิดได้ แต่เอเจนต์ตอบ 404</h3>
+          <p>อาการนี้เกิดเมื่อ Hermes เรียกชื่อเต็ม แต่ vLLM ประกาศแค่ชื่อสั้น หรือเปิดโมเดลคนละตัวที่ไม่มีชื่อนั้น ไฟล์โมเดลมีครบ แค่ชื่อไม่ตรง</p>
+          <ol class="steps">
+            <li>
+              <div class="title">อย่ารัน qwen35-start ทับ</div>
+              <p>ใช้ <code>start-qwen35</code> อันเดียว คำสั่งนี้จะปิด <code>nemoclaw-vllm</code> ให้ถ้าค้างอยู่</p>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>start-qwen35</pre></div>
+            </li>
+            <li>
+              <div class="title">รอ Ready จนเห็นชื่อเต็ม</div>
+              <p>ต้องมี <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code></p>
+            </li>
+            <li>
+              <div class="title">ตรวจ API</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>curl -s http://127.0.0.1:8000/v1/models</pre></div>
+            </li>
+            <li>
+              <div class="title">ตรวจ Hermes</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>nemoclaw hermes status</pre></div>
+              <p>Inference (vllm backend) ต้อง healthy</p>
+            </li>
+            <li>
+              <div class="title">รีเฟรชแดชบอร์ดแล้วส่งในห้องใหม่</div>
+              <p>อย่าตัดสินจากห้องเก่าที่ error ค้างไว้</p>
+            </li>
+          </ol>
+          <p>ถ้า RAM ดูสูงผิดปกติหลังเปิด Qwen 35B ให้อ่าน <a href="models.html#ramwhy">ทำไม RAM สูง</a> สูตรปัจจุบันต้องกันประมาณ 40% ไม่ใช่ 82%</p>
+
+          <h3>เข้า http://127.0.0.1:18789 ไม่ได้</h3>
+          <ol class="steps">
+            <li>รัน <code>nemoclaw hermes status</code></li>
+            <li>ถ้า sandbox หยุด ให้รัน <code>nemoclaw hermes start</code></li>
+            <li>ถ้า start แล้วพอร์ตยังเงียบ ให้รัน <code>nemoclaw hermes recover</code></li>
+            <li>เปิด URL อีกครั้งจากเครื่อง DGX ไม่ใช่จากมือถือตรง ๆ เพราะเกตเวย์ฟังที่ 127.0.0.1 เท่านั้น</li>
+          </ol>
+
+          <h3>อยากดูว่าเอเจนต์พังตรงไหน</h3>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>nemoclaw hermes logs --tail 80</pre></div>
+          <p>ถ้าในล็อกมีคำว่า does not exist หรือ 404 ให้กลับไปตรวจชื่อโมเดลในขั้นที่ 8 ไม่ใช่ไป rebuild sandbox</p>
+        </section>
+
+        <div class="pager">
+          <a href="comfy.html"><small>กลับ</small>สร้างภาพ</a>
+          <a href="system.html"><small>ถัดไป</small>ระบบเครื่อง</a>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="assets/app.js"></script>
+</body>
+</html>

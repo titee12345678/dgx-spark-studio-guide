@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>โมเดลภาษา · คู่มือ DGX Spark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"></header>
+    <div class="page">
+      <aside class="side">
+        <input class="search" id="q" type="search" placeholder="ค้นในหน้าโมเดล...">
+        <nav class="nav">
+          <div class="group">โมเดลภาษา</div>
+          <a href="#list">โมเดลที่มีในเครื่อง</a>
+          <a href="#cmds">คำสั่งทั้งหมด</a>
+          <a href="#stop">ปิดโมเดลคืน RAM</a>
+          <a href="#nemotron">เปิด Nemotron</a>
+          <a href="#qwen27">สลับไป Qwen 27B</a>
+          <a href="#why">เรื่องที่เกิดจริง</a>
+          <a href="#twocmds">สองคำสั่งคนละตัว</a>
+          <a href="#path">Linux หาคำสั่งยังไง</a>
+          <a href="#inside">แต่ละคำสั่งทำอะไรข้างใน</a>
+          <a href="#names">ชื่อโมเดลสามชั้น</a>
+          <a href="#ramwhy">ทำไม RAM สูง</a>
+          <a href="#fixed">สิ่งที่แก้แล้ววันนี้</a>
+          <a href="#qwen35">สลับไป Qwen 35B</a>
+          <a href="#verify35">ตรวจว่า Qwen 35B ใช้ได้จริง</a>
+          <a href="#webui">เปิดปิดเฉพาะเว็บ</a>
+          <a href="#kv">KV cache</a>
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="hero">
+          <div class="kicker">หมวดโมเดล · พอร์ต 8000</div>
+          <h1>เปิด ปิด และสลับโมเดลภาษา</h1>
+          <p class="lede">หมวดนี้เป็นหน้าที่ของ vLLM ไม่ใช่หน้าเว็บแชท เปิดได้ทีละตัว คำสั่งจะปิดตัวเก่าให้อัตโนมัติ</p>
+        </header>
+
+        <section id="list">
+          <h2>โมเดลที่มีในเครื่อง</h2>
+          <p>ไฟล์อยู่ที่ <code>~/.cache/huggingface/hub</code> โหลดครบแล้ว ไม่ต้องดาวน์โหลดซ้ำตอนสตาร์ท</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ชื่อบนหน้าเว็บ</th><th>ไฟล์จริง</th><th>ขนาด</th><th>เหมาะกับ</th><th>คำสั่ง</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Nemotron-3.5-Lightning</td>
+                  <td>nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4</td>
+                  <td>21 GB + DSpark 1.3 GB</td>
+                  <td>แชท เขียนโค้ด งานเอเจนต์ บริบทยาว</td>
+                  <td><code>start-nemotron</code></td>
+                </tr>
+                <tr>
+                  <td>Qwen3.6-27B</td>
+                  <td>nvidia/Qwen3.6-27B-NVFP4</td>
+                  <td>21 GB</td>
+                  <td>แชททั่วไป สูตรนี้เปิดแบบข้อความอย่างเดียว</td>
+                  <td><code>start-qwen27</code></td>
+                </tr>
+                <tr>
+                  <td>nvidia/Qwen3.6-35B-A3B-NVFP4 และ Qwen3.6-35B</td>
+                  <td>nvidia/Qwen3.6-35B-A3B-NVFP4</td>
+                  <td>22 GB ไฟล์ · จอง RAM ประมาณ 40%</td>
+                  <td>งานหนักขึ้น แบบ MoE ใช้กับ Hermes ได้</td>
+                  <td><code>start-qwen35</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="shot">
+            <img src="assets/shots/term-models.png" alt="ผลลัพธ์ GET /v1/models">
+            <figcaption>API จริงที่พอร์ต 8000 ตอน Nemotron เปิดอยู่</figcaption>
+          </figure>
+        </section>
+
+        <section id="cmds">
+          <h2>คำสั่งทั้งหมด</h2>
+          <p>พิมพ์ในเทอร์มินัลบนเครื่อง DGX ไม่ต้อง <code>cd</code> ก่อน</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>คำสั่ง</th><th>ผลลัพธ์</th><th>ใช้เวลานานไหม</th></tr></thead>
+              <tbody>
+                <tr><td><code>llm-status</code></td><td>บอกว่าเว็บกับโมเดลเปิดอยู่หรือไม่</td><td>ทันที</td></tr>
+                <tr><td><code>start-nemotron</code></td><td>ปิดโมเดลอื่น แล้วเปิด Nemotron</td><td>2–4 นาที</td></tr>
+                <tr><td><code>start-qwen27</code></td><td>ปิดโมเดลอื่น แล้วเปิด Qwen 27B</td><td>2–4 นาที</td></tr>
+                <tr><td><code>start-qwen35</code></td><td>ปิดโมเดลอื่น แล้วเปิด Qwen 35B ชื่อเต็มที่ Hermes ใช้ จอง RAM 40%</td><td>2–6 นาที</td></tr>
+                <tr><td><code>stop-model</code></td><td>ปิดโมเดล คืน RAM ประมาณ 100 GB</td><td>ไม่กี่วินาที</td></tr>
+                <tr><td><code>start-webui</code></td><td>เปิดหน้าเว็บ :18473</td><td>ไม่กี่วินาที</td></tr>
+                <tr><td><code>stop-webui</code></td><td>ปิดหน้าเว็บ ประวัติแชทยังอยู่</td><td>ทันที</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout ok">คำสั่งสลับโมเดลจะปิดตัวเก่าให้อัตโนมัติ</div>
+        </section>
+
+        <section id="stop">
+          <h2>ปิดโมเดลคืน RAM</h2>
+          <p>ทำเมื่อไม่ได้คุยแล้ว และอยากให้เครื่องโล่ง</p>
+          <ol class="steps">
+            <li><div class="title">เปิดเทอร์มินัล</div></li>
+            <li>
+              <div class="title">พิมพ์แล้วกด Enter</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>stop-model</pre></div>
+            </li>
+            <li><div class="title">รอจนขึ้น Model stopped.</div></li>
+            <li>
+              <div class="title">ตรวจซ้ำ</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>llm-status</pre></div>
+              <p>ต้องเห็น <code>Model: stopped</code></p>
+            </li>
+            <li>
+              <div class="title">ถ้าอยากยืนยัน RAM</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>free -h</pre></div>
+              <p>คอลัมน์ available ควรเพิ่มขึ้นมากหลังปิดโมเดล</p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/term-free.png" alt="ผลลัพธ์ free -h">
+            <figcaption>ขณะโมเดลเปิด RAM ที่ใช้จะสูงมาก นี่คือเหตุผลที่ต้องปิดเมื่อไม่ได้คุย</figcaption>
+          </figure>
+          <div class="callout tip">ปิดโมเดลแล้วหน้า Open WebUI ยังเปิดได้อยู่ แต่ส่งข้อความจะไม่ได้</div>
+        </section>
+
+        <section id="nemotron">
+          <h2>เปิด Nemotron</h2>
+          <ol class="steps">
+            <li><div class="title">เปิดเทอร์มินัล</div></li>
+            <li>
+              <div class="title">พิมพ์แล้วกด Enter</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>start-nemotron</pre></div>
+            </li>
+            <li><div class="title">อ่านบรรทัด Stopping any running model...</div><p>ถ้ามี Qwen เปิดอยู่ จะถูกปิดในขั้นนี้</p></li>
+            <li><div class="title">รอข้อความ Waiting for model API</div><p>อย่าปิดเทอร์มินัล อย่ากด Ctrl+C</p></li>
+            <li><div class="title">รอจนขึ้น Ready. และชื่อโมเดล</div><p>ใช้เวลาประมาณ 2–4 นาที</p></li>
+            <li><div class="title">รีเฟรช Open WebUI ที่ :18473</div><p>กด <kbd>F5</kbd> หรือ <kbd>Ctrl</kbd> + <kbd>R</kbd></p></li>
+            <li><div class="title">เลือก Nemotron-3.5-Lightning ในหน้าแชท แล้วส่งข้อความทดสอบ</div></li>
+          </ol>
+        </section>
+
+        <section id="qwen27">
+          <h2>สลับไป Qwen 27B</h2>
+          <ol class="steps">
+            <li><div class="title">บันทึกงานแชทที่ยังเปิดอยู่ถ้าต้องการ</div></li>
+            <li>
+              <div class="title">ในเทอร์มินัลพิมพ์</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>start-qwen27</pre></div>
+            </li>
+            <li><div class="title">รอจนขึ้น Ready. และชื่อ Qwen3.6-27B</div></li>
+            <li><div class="title">รีเฟรช Open WebUI</div></li>
+            <li><div class="title">คลิกตัวเลือกโมเดล แล้วเลือก Qwen3.6-27B</div><p>ถ้ายังเห็นชื่อเก่า ให้รอ 10 วินาทีแล้วรีเฟรชอีกครั้ง</p></li>
+            <li><div class="title">ส่งข้อความทดสอบสั้น ๆ</div></li>
+          </ol>
+        </section>
+
+        <section id="why">
+          <h2>เรื่องที่เกิดจริงบนเครื่องนี้</h2>
+          <p>หมวดนี้ยาวเพราะเรื่องนี้มี <strong>สามเรื่องซ้อนกัน</strong> ถ้าอ่านแค่บรรทัดเดียวจะเข้าใจผิด ต้องไล่ทีละชั้น</p>
+          <ol>
+            <li>บนเครื่องมี <strong>สองคำสั่งคนละไฟล์</strong> ที่ชื่อคล้ายกัน</li>
+            <li>โปรแกรมที่คุยกับโมเดลไม่ได้ดูไฟล์บนดิสก์ แต่ดู <strong>ชื่อที่ vLLM ประกาศ</strong></li>
+            <li>ตัวเลข RAM ที่สูงส่วนใหญ่คือ <strong>ที่จองล่วงหน้า</strong> ไม่ใช่ไฟล์โมเดลโตขึ้น</li>
+          </ol>
+          <p>อาการที่เจอจริงมีสองอย่างพร้อมกัน</p>
+          <ul>
+            <li>รัน <code>start-qwen35</code> แล้ว Hermes ส่งข้อความไม่ได้ / ขึ้นว่าโมเดลไม่มี (HTTP 404)</li>
+            <li>รัน <code>start-qwen35</code> แล้ว RAM ดูสูงผิดปกติ เมื่อเทียบกับตอนรัน <code>qwen35-start</code></li>
+          </ul>
+          <div class="viz cols-3">
+            <article class="viz-card">
+              <span class="k">เรื่องที่ 1</span>
+              <h3>สองคำสั่ง</h3>
+              <p><code>start-qwen35</code> กับ <code>qwen35-start</code> คนละไฟล์ คนละกล่อง</p>
+            </article>
+            <article class="viz-card">
+              <span class="k">เรื่องที่ 2</span>
+              <h3>ชื่อไม่ตรง</h3>
+              <p>Hermes ยิงชื่อเต็ม ถ้า API ประกาศแค่ชื่อสั้น จะได้ 404</p>
+            </article>
+            <article class="viz-card">
+              <span class="k">เรื่องที่ 3</span>
+              <h3>จอง RAM</h3>
+              <p>สูตรเก่ากัน 82% สูตรใหม่กัน 40% ไฟล์โมเดลไม่ได้โต</p>
+            </article>
+          </div>
+          <div class="callout warn">สิ่งที่ <em>ไม่ได้</em> พัง: ไฟล์โมเดลบนดิสก์ไม่หาย Hermes แดชบอร์ดไม่พัง Open WebUI ยังคุยได้ด้วยชื่อสั้น ปัญหาอยู่ที่ <strong>ชื่อที่เรียก</strong> กับ <strong>สูตรจอง RAM</strong></div>
+          <p>อ่านต่อตามหัวข้อซ้ายมือ ห้ามข้าม <a href="#twocmds">สองคำสั่ง</a> → <a href="#path">Linux หาคำสั่งยังไง</a> → <a href="#inside">ข้างในคำสั่ง</a> → <a href="#names">ชื่อสามชั้น</a> → <a href="#ramwhy">RAM</a> → <a href="#fixed">สิ่งที่แก้แล้ว</a> แล้วค่อยไป <a href="#qwen35">เปิดโมเดล</a></p>
+        </section>
+
+        <section id="twocmds">
+          <h2>สองคำสั่งนี้ไม่ใช่คำสั่งเดียวกัน</h2>
+          <p>บนเครื่องนี้มีคำสั่งสองตัวที่คนพิมพ์สลับกันบ่อย เพราะมีคำว่า <code>qwen35</code> เหมือนกัน แต่ขึ้นต้นคนละแบบ และไปเปิดคนละคอนเทนเนอร์</p>
+          <div class="viz cols-2">
+            <article class="viz-card">
+              <span class="k">ใช้คำนี้</span>
+              <h3>start-qwen35</h3>
+              <p>ขึ้นต้นด้วย start- · เปิดกล่อง <code>vllm-qwen35</code> · สูตรสตูดิโอ</p>
+            </article>
+            <article class="viz-card">
+              <span class="k">อย่าใช้คู่กัน</span>
+              <h3>qwen35-start</h3>
+              <p>ลงท้ายด้วย -start · เปิดกล่อง <code>nemoclaw-vllm</code> · สูตรเก่า</p>
+            </article>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>รายการ</th><th><code>start-qwen35</code></th><th><code>qwen35-start</code></th></tr>
+              </thead>
+              <tbody>
+                <tr><td>ชื่อเต็มที่ต้องพิมพ์</td><td><code>start-qwen35</code> ขึ้นต้นด้วย start-</td><td><code>qwen35-start</code> ลงท้ายด้วย -start</td></tr>
+                <tr><td>ไฟล์จริง</td><td><code>/home/dgxspark/.local/bin/start-qwen35</code></td><td><code>/usr/local/bin/qwen35-start</code></td></tr>
+                <tr><td>ชนิดไฟล์</td><td>สคริปต์สั้น 71 ไบต์ สร้าง 17 ส.ค. 2026</td><td>ลิงก์ไป <code>/usr/local/bin/qwen-switch</code> สร้าง 14 ส.ค. 2026</td></tr>
+                <tr><td>ข้างในเรียกอะไร</td><td><code>~/ai/open-webui/llm start qwen35</code></td><td><code>docker start nemoclaw-vllm</code></td></tr>
+                <tr><td>เปิดคอนเทนเนอร์ชื่อ</td><td><code>vllm-qwen35</code></td><td><code>nemoclaw-vllm</code></td></tr>
+                <tr><td>ใครสร้างสูตรนี้</td><td>สูตรสตูดิโอใน <code>~/ai/open-webui/docker-compose.yml</code></td><td>สูตรเดิมของ NemoClaw ที่ลงมากับเครื่อง</td></tr>
+                <tr><td>ฟังพอร์ต</td><td>8000</td><td>8000</td></tr>
+                <tr><td>เปิดพร้อมกันได้ไหม</td><td colspan="2">ไม่ได้ ทั้งคู่แย่งพอร์ต 8000 ตัวหลังจะชนหรือทับตัวแรก</td></tr>
+                <tr><td>ปิดตัวอื่นให้ไหม</td><td>ปิดทั้งตระกูล vLLM รวม <code>nemoclaw-vllm</code> และ <code>qwen36-27b</code></td><td>ปิดแค่ <code>qwen36-27b</code> ไม่ปิด <code>vllm-qwen35</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>ตรวจด้วยตาบนเครื่องนี้ได้เลย คัดลอกแล้วกด Enter</p>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>which -a start-qwen35 qwen35-start
+ls -l ~/.local/bin/start-qwen35 /usr/local/bin/qwen35-start /usr/local/bin/qwen-switch</pre></div>
+          <figure class="shot">
+            <img src="assets/shots/term-two-cmds.png" alt="which และ ls แสดงว่าสองคำสั่งอยู่คนละไฟล์">
+            <figcaption>ผลจริง: <code>start-qwen35</code> อยู่ที่ <code>~/.local/bin</code> ส่วน <code>qwen35-start</code> เป็นลิงก์ไป <code>qwen-switch</code></figcaption>
+          </figure>
+          <div class="callout tip">จำแบบนี้: คำสั่งของคู่มือสตูดิโอนี้ขึ้นต้นด้วย <code>start-</code> เสมอ (<code>start-nemotron</code> <code>start-qwen27</code> <code>start-qwen35</code>) คำสั่งที่ลงท้าย <code>-start</code> คือสูตรเก่าของเครื่อง อย่าใช้คู่กัน</div>
+        </section>
+
+        <section id="path">
+          <h2>Linux หาคำสั่งยังไง และทำไมกด Tab แล้วได้คนละตัว</h2>
+          <p>เมื่อพิมพ์ชื่อคำสั่งแล้วกด Enter เชลล์ไม่ได้เดา มันเดินหาไฟล์ตามตัวแปร <code>PATH</code> จากซ้ายไปขวา เจอชื่อตรงกันตัวแรกแล้วหยุด</p>
+          <p>บนเครื่องนี้ <code>PATH</code> ขึ้นต้นด้วย <code>/home/dgxspark/.local/bin</code> แล้วค่อยถึง <code>/usr/local/bin</code></p>
+          <div class="flow">
+            <div class="box"><b>พิมพ์ start-qwen35</b> เชลล์เดิน PATH จากซ้าย → เจอที่ ~/.local/bin ก่อน → สูตรสตูดิโอ</div>
+            <div class="arrow">↓ คนละชื่อ ไม่ทับกัน</div>
+            <div class="box"><b>พิมพ์ qwen35-start</b> ไม่มีใน ~/.local/bin → ไปเจอที่ /usr/local/bin → สูตรเก่า</div>
+            <div class="arrow">↓ กับดัก Tab</div>
+            <div class="box"><b>พิมพ์แค่ qwen35 แล้วกด Tab</b> เชลล์เติมเป็น qwen35-start เพราะไฟล์นั้นขึ้นต้นด้วย qwen35</div>
+          </div>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>echo $PATH</pre></div>
+          <p>ดังนั้น</p>
+          <ul>
+            <li>พิมพ์ <code>start-qwen35</code> → เจอที่ <code>~/.local/bin</code> ก่อน → เปิดสูตรสตูดิโอ</li>
+            <li>พิมพ์ <code>qwen35-start</code> → ไม่มีไฟล์ชื่อนี้ใน <code>~/.local/bin</code> → ไปเจอที่ <code>/usr/local/bin</code> → เปิดสูตรเก่า</li>
+          </ul>
+          <p>สองชื่อนี้ไม่ทับกันใน PATH เพราะสะกดไม่เหมือนกัน ทั้งคู่จึงเรียกได้ตลอด ใครพิมพ์ชื่อไหนก็ได้ตัวนั้นจริง ๆ</p>
+          <h3>กับดักที่พบบ่อย: กด Tab เติมคำ</h3>
+          <ol class="steps">
+            <li>
+              <div class="title">เปิดเทอร์มินัล</div>
+              <p>กด <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd></p>
+            </li>
+            <li>
+              <div class="title">พิมพ์แค่ qwen35 แล้วกด Tab</div>
+              <p>เชลล์จะเติมเป็น <code>qwen35-start</code> เพราะไฟล์นั้นขึ้นต้นด้วย qwen35</p>
+            </li>
+            <li>
+              <div class="title">ถ้าต้องการสูตรสตูดิโอ ต้องพิมพ์ start- ก่อน</div>
+              <p>พิมพ์ <code>start-q</code> แล้วค่อยกด Tab จะได้ <code>start-qwen27</code> หรือ <code>start-qwen35</code></p>
+            </li>
+            <li>
+              <div class="title">ก่อนกด Enter ดูชื่อเต็มบนบรรทัด</div>
+              <p>ต้องเป็น <code>start-qwen35</code> ทั้งคำ ห้ามเหลือแค่ <code>qwen35-start</code></p>
+            </li>
+          </ol>
+          <div class="callout warn">อย่าพิมพ์ <code>start-qwen35</code> แล้วตามด้วย <code>qwen35-start</code> ในอีกแท็บ คำสั่งหลังจะพยายามเปิด <code>nemoclaw-vllm</code> ทับพอร์ต 8000 ของตัวที่เพิ่งเปิด</div>
+        </section>
+
+        <section id="inside">
+          <h2>แต่ละคำสั่งทำอะไรข้างใน ทีละขั้น</h2>
+          <p>อย่าคิดว่าสองคำสั่ง “เปิดโมเดลเดียวกันคนละทาง” มันเปิดคนละคอนเทนเนอร์ และปิดตัวอื่นไม่เหมือนกัน</p>
+
+          <h3>เมื่อรัน start-qwen35</h3>
+          <p>ไฟล์ <code>~/.local/bin/start-qwen35</code> มีแค่บรรทัดเดียว คือไปเรียกสคริปต์กลาง</p>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>cat ~/.local/bin/start-qwen35</pre></div>
+          <p>ผลที่ต้องเห็น</p>
+          <div class="eq">#!/usr/bin/env bash
+exec /home/dgxspark/ai/open-webui/llm start qwen35</div>
+          <p>จากนั้นสคริปต์ <code>~/ai/open-webui/llm</code> ทำตามนี้เป๊ะ</p>
+          <ol class="steps">
+            <li>
+              <div class="title">พิมพ์ Stopping any running model...</div>
+              <p>แล้วปิดทุกตัวในรายการ <code>vllm-nemotron</code> <code>vllm-qwen27</code> <code>vllm-qwen35</code> <code>nemotron-vllm</code> <code>nemoclaw-vllm</code> <code>qwen36-27b</code></p>
+            </li>
+            <li>
+              <div class="title">เปิด Open WebUI ถ้ายังไม่เปิด</div>
+              <p>หน้าเว็บอยู่ที่พอร์ต 18473 ไม่กินพอร์ต 8000</p>
+            </li>
+            <li>
+              <div class="title">สร้างแล้วเปิดคอนเทนเนอร์ vllm-qwen35 จาก docker-compose</div>
+              <p>ใช้โปรไฟล์ <code>qwen35</code> ในไฟล์ <code>~/ai/open-webui/docker-compose.yml</code></p>
+            </li>
+            <li>
+              <div class="title">รอ API ที่พอร์ต 8000 สูงสุด 720 วินาที</div>
+              <p>ทุก 15 วินาทีจะพิมพ์ still loading... รอบแรกหลังคอมไพล์เคอร์เนลอาจนาน 5–6 นาที อย่ากด Ctrl+C</p>
+            </li>
+            <li>
+              <div class="title">เมื่อ Ready จะพิมพ์ชื่อโมเดลที่ API ประกาศ</div>
+              <p>สูตรปัจจุบันต้องขึ้นทั้ง <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> และ <code>Qwen3.6-35B</code></p>
+            </li>
+          </ol>
+
+          <h3>เมื่อรัน qwen35-start</h3>
+          <p>ไฟล์นี้เป็นลิงก์ไป <code>/usr/local/bin/qwen-switch</code> สคริปต์นั้นดูชื่อที่ถูกเรียก ถ้าชื่อเป็น <code>qwen35-start</code> จะทำแบบนี้</p>
+          <ol class="steps">
+            <li>
+              <div class="title">ตรวจว่ามีคอนเทนเนอร์ชื่อ nemoclaw-vllm</div>
+              <p>ถ้าไม่มี จะพิมพ์ ไม่พบ container แล้วจบ ไม่ได้ไปสร้างจาก compose ของสตูดิโอ</p>
+            </li>
+            <li>
+              <div class="title">ถ้า qwen36-27b เปิดอยู่ จะปิดแค่นั้น</div>
+              <p>มัน <strong>ไม่ปิด</strong> <code>vllm-qwen35</code> หรือ <code>vllm-nemotron</code> นี่คือเหตุที่เคยชนพอร์ต 8000</p>
+            </li>
+            <li>
+              <div class="title">docker start nemoclaw-vllm</div>
+              <p>แค่ปลุกคอนเทนเนอร์เก่าที่เคยสร้างไว้ตอนลง NemoClaw ไม่ได้อ่านสูตรใหม่ใน docker-compose.yml</p>
+            </li>
+            <li>
+              <div class="title">รอ API ที่พอร์ต 8000 สูงสุด 600 วินาที</div>
+            </li>
+          </ol>
+          <div class="callout bad">ถ้ารัน <code>start-qwen35</code> จน Ready แล้วไปรัน <code>qwen35-start</code> ทับ สูตรเก่าจะพยายามปลุก <code>nemoclaw-vllm</code> ทั้งที่พอร์ต 8000 ถูกจองแล้ว อย่าทำ</div>
+        </section>
+
+        <section id="names">
+          <h2>ชื่อโมเดลมีสามชั้น คนละอย่างกัน</h2>
+          <p>จุดนี้คือเหตุที่ Hermes พังทั้งที่โมเดลโหลดอยู่แล้ว ต้องแยกสามชั้นให้ขาด</p>
+          <div class="flow">
+            <div class="box">
+              <b>ชั้น 1 · ไฟล์บนดิสก์</b>
+              โฟลเดอร์น้ำหนักโมเดล <code>~/.cache/huggingface/hub/models--nvidia--Qwen3.6-35B-A3B-NVFP4</code> ประมาณ 22 GB คนไม่ได้อ่านโฟลเดอร์นี้ตรง ๆ
+            </div>
+            <div class="arrow">↓ vLLM โหลดไฟล์นี้ แล้วประกาศชื่อให้คนอื่นเรียก ตามค่า --served-model-name</div>
+            <div class="box">
+              <b>ชั้น 2 · ชื่อที่ API ประกาศ</b>
+              ถามได้ที่ <code>http://127.0.0.1:8000/v1/models</code> ช่อง <code>id</code> ใน JSON คือชื่อที่เรียกได้จริง
+            </div>
+            <div class="arrow">↓ โปรแกรมแชทส่งชื่อนี้กลับไปในคำขอ /v1/chat/completions</div>
+            <div class="box">
+              <b>ชั้น 3 · ชื่อที่โปรแกรมยิง</b>
+              Hermes ยึดชื่อเต็ม <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> อย่างเดียว Open WebUI เลือกชื่อไหนในรายการก็ได้
+            </div>
+          </div>
+
+          <h3>ชั้น 1 ไฟล์บนดิสก์ไม่เปลี่ยน</h3>
+          <p>ทั้ง <code>start-qwen35</code> และ <code>qwen35-start</code> อ่านน้ำหนักก้อนเดียวกัน ไม่ได้โหลดโมเดลคนละเวอร์ชัน</p>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>ls ~/.cache/huggingface/hub | grep Qwen3.6-35B</pre></div>
+          <p>ต้องเห็นโฟลเดอร์ <code>models--nvidia--Qwen3.6-35B-A3B-NVFP4</code></p>
+
+          <h3>ชั้น 2 ชื่อที่เสิร์ฟ ตั้งใน docker-compose</h3>
+          <p>ใน <code>~/ai/open-webui/docker-compose.yml</code> บริการ <code>qwen35</code> ตอนนี้มีสองชื่อ</p>
+          <div class="eq">--served-model-name
+nvidia/Qwen3.6-35B-A3B-NVFP4
+Qwen3.6-35B</div>
+          <p>บรรทัดแรกหลัง <code>--served-model-name</code> คือชื่อหลัก บรรทัดถัดไปที่ไม่ขึ้นต้นด้วย <code>--</code> คือชื่อสำรอง ไฟล์โมเดลยังก้อนเดียว แต่ API ยอมรับทั้งสองชื่อ</p>
+          <p>ตรวจของจริงจากคอนเทนเนอร์ที่กำลังรัน</p>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker inspect vllm-qwen35 --format '{{range .Config.Cmd}}{{println .}}{{end}}'</pre></div>
+          <figure class="shot">
+            <img src="assets/shots/term-inspect-cmd.png" alt="docker inspect แสดง served-model-name สองชื่อและ utilization 0.40">
+            <figcaption>ผลจริง: ต้องเห็น <code>--served-model-name</code> ตามด้วยชื่อเต็มแล้วชื่อสั้น และ <code>--gpu-memory-utilization</code> เป็น <code>0.40</code></figcaption>
+          </figure>
+
+          <h3>ชั้น 3 Hermes ยิงชื่อเต็มเท่านั้น</h3>
+          <p>ดูจากคำสั่งจริงบนเครื่องนี้</p>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>nemoclaw hermes status</pre></div>
+          <p>บรรทัดที่ต้องอ่าน</p>
+          <ul>
+            <li><code>Model: nvidia/Qwen3.6-35B-A3B-NVFP4</code> = ชื่อที่ Hermes จะใส่ในคำขอทุกครั้ง</li>
+            <li><code>Provider: vllm-local</code> = ไม่โหลดโมเดลในกรงเอง</li>
+            <li><code>Inference (vllm backend): healthy (http://127.0.0.1:8000/v1/models)</code> = โฮสต์พอร์ต 8000 ตอบและมีชื่อที่ตรง</li>
+          </ul>
+          <p>Open WebUI คนละแบบ มันถาม <code>/v1/models</code> แล้วโชว์ทุก <code>id</code> ให้เลือก ดังนั้นชื่อสั้นอย่างเดียวก็คุยได้</p>
+
+          <h3>ทำไมสูตรเก่าถึงได้ 404</h3>
+          <p>สูตรเก่าของ <code>start-qwen35</code> ประกาศแค่ <code>Qwen3.6-35B</code></p>
+          <ul>
+            <li>Open WebUI เห็นชื่อสั้น → เลือกได้ → คุยได้</li>
+            <li>Hermes ยิงชื่อเต็ม <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> → vLLM หา id นี้ไม่เจอ → ตอบ HTTP 404 ว่าโมเดลไม่มี</li>
+          </ul>
+          <p>ทดลองอาการนี้บนเครื่องได้โดยยิงชื่อที่ไม่มีจริง โมเดลที่โหลดอยู่จะไม่ถูกปิด</p>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>curl -s http://127.0.0.1:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"Qwen3.6-35B-WRONG","messages":[{"role":"user","content":"hi"}]}'</pre></div>
+          <figure class="shot">
+            <img src="assets/shots/term-name-404.png" alt="curl ชื่อโมเดลผิดแล้วได้ HTTP 404">
+            <figcaption>ผลจริง: <code>The model Qwen3.6-35B-WRONG does not exist</code> รหัส 404 นี่คืออาการเดียวกับที่ Hermes เคยเจอเมื่อชื่อไม่ตรง</figcaption>
+          </figure>
+          <p>สูตร <code>qwen35-start</code> ประกาศชื่อเต็มพอดี Hermes จึงใช้ได้ เลยดูเหมือน “คำสั่งนั้นถูกกว่า” ทั้งที่จริง ๆ แล้วเป็นคนละคอนเทนเนอร์ที่บังเอิญตั้งชื่อถูก</p>
+          <figure class="shot">
+            <img src="assets/shots/term-models-json.png" alt="JSON จาก /v1/models มีสอง id">
+            <figcaption>ผลจริงหลังแก้สูตร: API มีสอง id ชี้โมเดลก้อนเดียวกัน <code>root</code> ของทั้งคู่คือ <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code></figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/term-name-match.png" alt="รายชื่อโมเดลที่ Hermes ใช้และที่ Open WebUI ใช้">
+            <figcaption>สรุปชื่อ: Hermes ใช้บรรทัดบน Open WebUI ใช้ได้ทั้งสองบรรทัด</figcaption>
+          </figure>
+          <figure class="look">
+            <img src="assets/shots/focus/webui-picker.png" alt="รายการโมเดลสองชื่อใน Open WebUI">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              คลิกชื่อโมเดลมุมขวาล่าง ต้องเห็นทั้งชื่อเต็มและชื่อสั้น เลือกอันไหนก็ได้เพราะชี้ก้อนเดียวกัน
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="ramwhy">
+          <h2>ทำไม RAM สูงผิดปกติ</h2>
+          <p>DGX Spark ชิป GB10 ใช้หน่วยความจำก้อนเดียวทั้งระบบและ GPU รวมประมาณ 121 GiB ไม่มีแรมการ์ดแยก ตัวเลขใน <code>free -h</code> จึงรวมของโมเดลด้วย</p>
+          <div class="bar">
+            <div class="label"><span>สูตรเก่า 0.82</span><span>กันไว้ ~99 / 121 GiB</span></div>
+            <div class="track"><div class="fill bad" style="width:82%"></div></div>
+            <div class="legend">available เหลือไม่กี่ GB เครื่องแน่น ทั้งที่ไฟล์โมเดลยัง 22 GB</div>
+          </div>
+          <div class="bar">
+            <div class="label"><span>สูตรตอนนี้ 0.40</span><span>กันไว้ ~48 / 121 GiB</span></div>
+            <div class="track"><div class="fill" style="width:40%"></div></div>
+            <div class="legend">เหลือที่ให้เบราว์เซอร์ Open WebUI Hermes และระบบ</div>
+          </div>
+
+          <h3>ไฟล์โมเดลไม่ได้โต</h3>
+          <p>น้ำหนักบนดิสก์ยังประมาณ 22 GB เท่าเดิม ทั้งตอน RAM ดู 100 GB และตอนดู 60 GB ดังนั้นปัญหาไม่ได้อยู่ที่ “โหลดโมเดลคนละไฟล์”</p>
+
+          <h3>vLLM กันพื้นที่ตอนสตาร์ท</h3>
+          <p>ค่า <code>--gpu-memory-utilization</code> บอก vLLM ว่าให้กันสัดส่วนเท่าไรของหน่วยความจำที่มองเห็น ไว้ให้น้ำหนักโมเดลบวก KV cache</p>
+          <div class="eq">ของเครื่องนี้ประมาณ 121 GiB
+สูตรเก่า 0.82 × 121 ≈ 99 GiB ถูกกันไว้ตั้งแต่ยังไม่ได้คุย
+สูตร Hermes / สูตรใหม่ 0.40 × 121 ≈ 48 GiB</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>สูตร</th><th>utilization</th><th>กันไว้ประมาณ</th><th>ผลที่ตาเห็น</th></tr></thead>
+              <tbody>
+                <tr><td><code>start-qwen35</code> แบบเก่า</td><td>0.82</td><td>~99–100 GiB จาก 121</td><td>available เหลือไม่กี่ GB เครื่องแน่น</td></tr>
+                <tr><td><code>qwen35-start</code></td><td>0.40</td><td>~48 GiB</td><td>เหลือ RAM ใช้เบราว์เซอร์และโปรแกรมอื่น</td></tr>
+                <tr><td><code>start-qwen35</code> ตอนนี้</td><td>0.40</td><td>~48 GiB</td><td>เท่าสูตรที่ Hermes ใช้ได้</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>ส่วนที่กันเกิน 22 GB คือ <strong>KV cache</strong> ที่เตรียมไว้ให้บทสนทนายาว อ่านต่อที่ <a href="#kv">KV cache</a> ไม่ได้แปลว่าโมเดลกิน 100 GB ทั้งก้อนตลอดเวลา</p>
+
+          <h3>อ่าน free -h ยังไง ห้ามดูแค่ used</h3>
+          <ol class="steps">
+            <li>
+              <div class="title">รันคำสั่งนี้</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>free -h</pre></div>
+            </li>
+            <li>
+              <div class="title">ดูคอลัมน์ available ไม่ใช่ free</div>
+              <p><code>free</code> คือที่ว่างเปล่าจริง ๆ ส่วนที่ระบบเก็บแคชไฟล์จะโชว์ใน <code>buff/cache</code> และยังคืนให้โปรแกรมได้ คอลัมน์ที่บอกว่า “ยังเปิดอย่างอื่นได้อีกไหม” คือ <code>available</code></p>
+            </li>
+            <li>
+              <div class="title">ตัวเลขปกติหลังเปิด Qwen 35B สูตร 40%</div>
+              <p>วันที่ 17 สิงหาคม 2026 เครื่องนี้ใช้ไป 61 GiB เหลือ available 59 GiB มีแคชอีกประมาณ 30 GiB</p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/term-free-now.png" alt="free -h หลังเปิด Qwen 35B สูตร 40 เปอร์เซ็นต์">
+            <figcaption>ผลจริงตอน <code>vllm-qwen35</code> เปิดอยู่: used 61Gi available 59Gi ถ้า available เหลือไม่กี่ GB ทั้งที่เปิดแค่ Qwen 35B ให้สงสัยว่ายังใช้สูตร 0.82</figcaption>
+          </figure>
+          <p>เลข 61 GiB ไม่ได้แปลว่าโมเดลกินคนเดียว ในนั้นมี Open WebUI, ComfyUI, กรง Hermes, ระบบ และแคชด้วย ส่วนที่ vLLM กันไว้ตามสูตร 40% ประมาณ 48 GiB</p>
+          <div class="callout tip">อยากคืน RAM ให้รัน <code>stop-model</code> อย่าไปปิดแท็บเบราว์เซอร์อย่างเดียว แท็บไม่ใช่ตัวที่จอง 48–100 GB</div>
+        </section>
+
+        <section id="fixed">
+          <h2>สิ่งที่แก้แล้ววันนี้</h2>
+          <p>วันที่ 17 สิงหาคม 2026 ปรับสูตร <code>start-qwen35</code> ให้ทำงานแบบที่ Hermes ต้องการ โดยไม่ต้องไปพึ่ง <code>qwen35-start</code></p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>จุด</th><th>ก่อนแก้</th><th>หลังแก้</th></tr></thead>
+              <tbody>
+                <tr><td>ชื่อที่เสิร์ฟ</td><td>แค่ <code>Qwen3.6-35B</code></td><td>ทั้ง <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> และ <code>Qwen3.6-35B</code></td></tr>
+                <tr><td>จอง RAM</td><td>0.82 ≈ 100 GB</td><td>0.40 ≈ 48 GB</td></tr>
+                <tr><td>ปิดสูตรเก่า</td><td>ไม่ปิด <code>nemoclaw-vllm</code></td><td>ปิดทั้ง <code>nemoclaw-vllm</code> และ <code>qwen36-27b</code></td></tr>
+                <tr><td>รอ Ready</td><td>บางรอบสั้นเกิน รอบคอมไพล์เลยดูเหมือนค้าง</td><td>รอได้ถึง 720 วินาที</td></tr>
+                <tr><td>Hermes</td><td>404 ชื่อไม่ตรง</td><td>Inference healthy</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>สถานะจริงตอนเขียนหมวดนี้</p>
+          <ul>
+            <li>คอนเทนเนอร์โมเดล: <code>vllm-qwen35</code> Up</li>
+            <li>API: <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> และ <code>Qwen3.6-35B</code></li>
+            <li>RAM: used ≈ 61 GiB · available ≈ 59 GiB</li>
+            <li>Hermes: Inference (vllm backend) healthy</li>
+            <li><code>nemoclaw-vllm</code> ไม่ได้รันอยู่</li>
+          </ul>
+          <figure class="shot">
+            <img src="assets/shots/term-status-now.png" alt="llm-status และ docker ps ตอน Qwen 35B พร้อมใช้">
+            <figcaption>ผลจริง: <code>Model container: vllm-qwen35</code> และ API มีสองชื่อ พอร์ต 8000 ถูกจองโดยตัวเดียว</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/term-hermes-now.png" alt="nemoclaw hermes status แสดงโมเดลชื่อเต็มและ healthy">
+            <figcaption>ผลจริง: Hermes ใช้ชื่อเต็ม และบรรทัด Inference (vllm backend) เป็น healthy</figcaption>
+          </figure>
+          <div class="callout ok">ตั้งแต่วันนี้ใช้ <code>start-qwen35</code> อันเดียว ทั้ง Open WebUI และ Hermes ใช้คอนเทนเนอร์เดียวกันได้ ไม่ต้องสลับไป <code>qwen35-start</code></div>
+        </section>
+
+        <section id="qwen35">
+          <h2>สลับไป Qwen 35B ทีละขั้น</h2>
+          <p>ทำตามลำดับนี้บนเครื่อง DGX ใช้ <code>start-qwen35</code> อันเดียว อย่าพิมพ์ <code>qwen35-start</code> คู่กัน ถ้ายังไม่ได้อ่าน <a href="#why">เรื่องที่เกิดจริง</a> ให้อ่านก่อน</p>
+          <ol class="steps">
+            <li>
+              <div class="title">เปิดเทอร์มินัลบนเครื่อง DGX</div>
+              <p>กด <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd> ต้องเป็นเทอร์มินัลบนตัวเครื่องหรือ SSH เข้าเครื่องนี้ ไม่ใช่เทอร์มินัลในกรง Hermes</p>
+            </li>
+            <li>
+              <div class="title">ดูว่าตอนนี้มีโมเดลอะไรเปิดอยู่</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>llm-status
+docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'</pre></div>
+              <p>จำไว้ว่าเห็นอะไร ถ้าเห็น <code>nemoclaw-vllm</code> <code>vllm-nemotron</code> หรือ <code>vllm-qwen27</code> ไม่ต้องปิดมือเอง ข้อถัดไปปิดให้</p>
+            </li>
+            <li>
+              <div class="title">ยืนยันว่าจะพิมพ์ชื่อถูก</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>which start-qwen35</pre></div>
+              <p>ต้องได้ <code>/home/dgxspark/.local/bin/start-qwen35</code> ถ้าได้ path อื่น หยุดแล้วอ่าน <a href="#path">Linux หาคำสั่งยังไง</a></p>
+            </li>
+            <li>
+              <div class="title">พิมพ์ชื่อคำสั่งให้ครบแล้วกด Enter</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>start-qwen35</pre></div>
+              <p>ต้องขึ้นต้นด้วย <code>start-</code> อย่าใช้ <code>qwen35-start</code> อย่าเปิดแท็บที่สองไปรันคำสั่งสลับโมเดลอีกตัว</p>
+            </li>
+            <li>
+              <div class="title">อ่านบรรทัด Stopping any running model...</div>
+              <p>ถ้ามีสูตรเก่าเปิดอยู่ จะถูกปิดในขั้นนี้ เพื่อไม่ให้แย่งพอร์ต 8000 รอจนผ่านบรรทัดนี้ก่อน</p>
+            </li>
+            <li>
+              <div class="title">อ่านบรรทัด Starting qwen35... แล้ว Waiting for model API</div>
+              <p>ตอนนี้ vLLM กำลังโหลดน้ำหนัก คอมไพล์เคอร์เนล และกันพื้นที่ KV cache</p>
+            </li>
+            <li>
+              <div class="title">รอจนขึ้น Ready ห้ามกด Ctrl+C</div>
+              <p>รอบแรกหลังรีบูตหรือหลังอัปเดตอิมเมจอาจนาน 5–6 นาที ทุก 15 วินาทีจะขึ้น still loading... นั่นปกติ เพดานรอคือ 720 วินาที</p>
+            </li>
+            <li>
+              <div class="title">ดูชื่อโมเดลที่พิมพ์ออกมาหลัง Ready</div>
+              <p>ต้องมีบรรทัด <code>model: nvidia/Qwen3.6-35B-A3B-NVFP4</code> ถ้ามีแค่ <code>Qwen3.6-35B</code> ให้หยุด แล้วยิง <code>docker logs --tail 80 vllm-qwen35</code> แล้วย้อนไปดูว่าแก้สูตรใน compose หลุดหรือยัง</p>
+            </li>
+            <li>
+              <div class="title">อย่าเปิดโมเดลใหญ่อีกตัวค้างไว้</div>
+              <p>อย่าไปรัน <code>start-nemotron</code> หรือ <code>qwen35-start</code> ทับ เปิดโมเดลใหญ่ได้ทีละตัว</p>
+            </li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/webui-center.png" alt="ชื่อโมเดลตรงกลางหน้าแชท">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              หลัง Ready รีเฟรช :18473 ตรงกลางต้องขึ้นชื่อเต็ม nvidia/Qwen3.6-35B-A3B-NVFP4
+            </figcaption>
+          </figure>
+          <div class="callout warn">ถ้าขึ้น Timed out ไม่ได้แปลว่าคำสั่งผิด ให้ดูล็อกก่อน รอบคอมไพล์แรกยาวมาก ดูด้วย <code>docker logs --tail 80 vllm-qwen35</code> ถ้ายังโหลดอยู่ให้รอต่อ แล้วค่อยรัน <code>llm-status</code> อีกครั้ง</div>
+        </section>
+
+        <section id="verify35">
+          <h2>ตรวจว่า Qwen 35B ใช้ได้จริง</h2>
+          <p>ทำครบทั้ง 8 ข้อ อย่าข้าม ถ้าข้อไหนไม่ผ่าน อย่าเพิ่งไปคุยใน Hermes แล้วสรุปว่าเอเจนต์พัง</p>
+          <ol class="steps">
+            <li>
+              <div class="title">ถามสถานะรวม</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>llm-status</pre></div>
+              <p>ต้องได้ <code>Model container: vllm-qwen35 (running)</code> และ <code>API model:</code> มีทั้งชื่อเต็มกับชื่อสั้น</p>
+            </li>
+            <li>
+              <div class="title">ถาม API ตรง ๆ</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>curl -s http://127.0.0.1:8000/v1/models | python3 -m json.tool</pre></div>
+              <p>ใน JSON ต้องมี <code>"id": "nvidia/Qwen3.6-35B-A3B-NVFP4"</code> ถ้ามีแค่ชื่อสั้น Hermes จะ 404</p>
+            </li>
+            <li>
+              <div class="title">ดูคอนเทนเนอร์ที่เปิดอยู่</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'</pre></div>
+              <p>ต้องเห็น <code>vllm-qwen35</code> สถานะ Up ผูก <code>0.0.0.0:8000-&gt;8000/tcp</code> และต้องไม่เห็น <code>nemoclaw-vllm</code> พร้อมกัน</p>
+            </li>
+            <li>
+              <div class="title">ยืนยันสูตรในคอนเทนเนอร์</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker inspect vllm-qwen35 --format '{{range .Config.Cmd}}{{println .}}{{end}}'</pre></div>
+              <p>ต้องเห็น <code>--gpu-memory-utilization</code> เป็น <code>0.40</code> และ <code>--served-model-name</code> ตามด้วยชื่อเต็ม</p>
+            </li>
+            <li>
+              <div class="title">ดู RAM</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>free -h</pre></div>
+              <p>สูตร 40% ทั้งระบบมักใช้ราว 60 GiB และยังเหลือ available หลายสิบ GiB ถ้า available เหลือไม่กี่ GB ทั้งที่เพิ่งเปิด Qwen 35B อย่างเดียว ให้สงสัยว่ายังใช้สูตร 0.82</p>
+            </li>
+            <li>
+              <div class="title">ถาม Hermes ว่าเห็นโมเดลหรือยัง</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>nemoclaw hermes status</pre></div>
+              <p>บรรทัด <code>Model:</code> ต้องเป็นชื่อเต็ม บรรทัด <code>Inference (vllm backend)</code> ต้องเป็น <strong>healthy</strong> ห้ามเป็น unavailable</p>
+            </li>
+            <li>
+              <div class="title">ทดสอบ Open WebUI</div>
+              <p>เปิด <a href="http://127.0.0.1:18473">http://127.0.0.1:18473</a> กด <kbd>F5</kbd> คลิกตัวเลือกโมเดล มุมบน เลือกชื่อเต็มหรือชื่อสั้น แล้วส่งข้อความสั้น ๆ เช่น สวัสดี ต้องได้คำตอบ</p>
+            </li>
+            <li>
+              <div class="title">ทดสอบ Hermes</div>
+              <p>เปิด <a href="http://127.0.0.1:18789/">http://127.0.0.1:18789/</a> จากเครื่อง DGX เข้าเมนู CHAT สร้างห้องใหม่หรือส่งในห้องที่ยังไม่มี error ค้าง ข้อความสั้น ๆ ต้องไม่ขึ้นว่าโมเดลไม่มี</p>
+            </li>
+          </ol>
+          <div class="shot-grid">
+            <figure class="look">
+              <img src="assets/shots/focus/webui-picker.png" alt="ตรวจสองชื่อในตัวเลือกโมเดล">
+              <figcaption><span class="pin">ข้อ 7</span> หน้าแชทเลือกชื่อเต็มหรือชื่อสั้นได้ทั้งคู่</figcaption>
+            </figure>
+            <figure class="look">
+              <img src="assets/shots/focus/hermes-sessions.png" alt="เซสชัน Hermes ใช้ Qwen 35B">
+              <figcaption><span class="pin">ข้อ 8</span> แดชบอร์ด Hermes เปิดได้ และเซสชันโชว์ชื่อเต็ม</figcaption>
+            </figure>
+          </div>
+          <div class="callout tip">ถ้าข้อ 2 ผ่านแต่ข้อ 6 ไม่ผ่าน ให้รีเฟรชสถานะ Hermes อีกครั้งหลัง API Ready ประมาณ 10 วินาที บางรอบเกตเวย์ยังแคชของเก่า</div>
+        </section>
+
+        <section id="webui">
+          <h2>เปิดปิดเฉพาะหน้าเว็บ</h2>
+          <p>อันนี้คนละเรื่องกับโมเดล ปิดเว็บแล้วโมเดลยังกิน RAM อยู่</p>
+          <figure class="look">
+            <img src="assets/shots/focus/webui-center.png" alt="หน้าแชท Open WebUI">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              หน้าเว็บแชทอยู่ที่ :18473 คนละโปรเซสกับโมเดลที่ :8000 ปิดด้วย stop-webui แล้ว RAM โมเดลยังไม่คืน
+            </figcaption>
+          </figure>
+          <ol class="steps">
+            <li>
+              <div class="title">ปิดหน้าเว็บแต่ไม่แตะโมเดล</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>stop-webui</pre></div>
+            </li>
+            <li>
+              <div class="title">เปิดหน้าเว็บกลับ</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>start-webui</pre></div>
+            </li>
+            <li><div class="title">เข้า <a href="http://127.0.0.1:18473">http://127.0.0.1:18473</a> อีกครั้ง แล้วล็อกอินถ้าถาม</div></li>
+          </ol>
+        </section>
+
+        <section id="kv">
+          <h2>KV cache คืออะไร</h2>
+          <p>เมื่อโมเดลตอบ มันดูข้อความทีละคำ และจำผลคำนวณของคำเก่าไว้ในหน่วยความจำ ก้อนนั้นชื่อ <strong>KV cache</strong> (Key-Value cache)</p>
+          <p>ถ้าไม่มี cache ทุกครั้งที่จะพิมพ์คำใหม่ โมเดลต้องอ่านข้อความเก่าทั้งก้อนใหม่หมด บทสนทนายาวจะช้าลงเรื่อย ๆ</p>
+          <p>vLLM จึงกันที่สำหรับ cache ไว้ตั้งแต่สตาร์ท ไม่ได้รอให้คุยยาวแล้วค่อยขอทีละนิด ดังนั้นพอเปิดโมเดล RAM จะกระโดดทันที แม้ยังไม่ได้พิมพ์อะไร</p>
+          <div class="viz cols-3">
+            <article class="viz-card">
+              <span class="k">ชั้นล่าง</span>
+              <h3>น้ำหนัก 22 GB</h3>
+              <p>ไฟล์โมเดลบนดิสก์ โหลดขึ้นหน่วยความจำ</p>
+            </article>
+            <article class="viz-card">
+              <span class="k">ชั้นกลาง</span>
+              <h3>KV cache</h3>
+              <p>ที่กันไว้ให้จำบทสนทนาเก่า ไม่ต้องคิดใหม่ทั้งก้อน</p>
+            </article>
+            <article class="viz-card">
+              <span class="k">ชั้นบน</span>
+              <h3>ของระบบ</h3>
+              <p>เว็บ เบราว์เซอร์ กรง Hermes และแคชไฟล์</p>
+            </article>
+          </div>
+          <ul>
+            <li>น้ำหนักโมเดลบนดิสก์ประมาณ 22 GB</li>
+            <li>Qwen 35B สูตรปัจจุบันกันรวมประมาณ 40% ของเครื่อง (~48 GiB) เหลือที่ให้ระบบ เบราว์เซอร์ Open WebUI และ Hermes</li>
+            <li>ถ้าเผลอตั้ง utilization เป็น 0.82 จะกันเกือบ 100 GiB ทั้งที่น้ำหนักโมเดลเท่าเดิม นี่คืออาการ “RAM สูงผิดปกติ” ของสูตรเก่า</li>
+            <li>Nemotron และ Qwen 27B บนเครื่องนี้ยังใช้ 0.82 เพราะสูตรนั้นออกแบบมาให้บริบทยาว เปิดได้ทีละตัวเหมือนเดิม</li>
+          </ul>
+          <p>อยากคืน RAM ให้รัน <code>stop-model</code> ไม่ใช่ไปปิดแท็บเบราว์เซอร์อย่างเดียว ปิดแท็บแล้วโมเดลยังจองที่อยู่</p>
+        </section>
+
+        <div class="pager">
+          <a href="chat.html"><small>กลับ</small>แชท</a>
+          <a href="comfy.html"><small>ถัดไป</small>สร้างภาพ</a>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ศัพท์ Local AI · คู่มือ DGX Spark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"></header>
+    <div class="page">
+      <aside class="side">
+        <input class="search" id="q" type="search" placeholder="ค้นศัพท์ เช่น KV, LoRA, ควอนไทซ์...">
+        <nav class="nav">
+          <div class="group">อ่านก่อน</div>
+          <a href="#how">วิธีใช้หน้านี้</a>
+          <div class="group">พื้นฐาน</div>
+          <a href="#base">Local AI คืออะไร</a>
+          <a href="#hw">ฮาร์ดแวร์และหน่วยความจำ</a>
+          <div class="group">โมเดลภาษา</div>
+          <a href="#llm">ชนิดโมเดลภาษา</a>
+          <a href="#files">ไฟล์และฟอร์แมต</a>
+          <a href="#quant">ควอนไทซ์</a>
+          <a href="#serve">การเสิร์ฟและ API</a>
+          <a href="#infer">การอนุมาน</a>
+          <a href="#ctx">บริบทและ KV cache</a>
+          <div class="group">โปรแกรมบนเครื่องนี้</div>
+          <a href="#chat">แชทและเว็บ</a>
+          <a href="#agent">เอเจนต์และเครื่องมือ</a>
+          <a href="#image">สร้างภาพ</a>
+          <a href="#video">สร้างวิดีโอ</a>
+          <div class="group">ระบบ</div>
+          <a href="#docker">Docker และคอนเทนเนอร์</a>
+          <a href="#net">เครือข่ายและพอร์ต</a>
+          <a href="#cmds">คำสั่งบนเครื่องนี้</a>
+          <a href="#err">คำที่เจอตอนพัง</a>
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="hero">
+          <div class="kicker">หมวดศัพท์ · Local AI ทั้งก้อน</div>
+          <h1>ศัพท์ที่ควรรู้ตอนรัน AI ในเครื่อง</h1>
+          <p class="lede">รวมคำที่เจอตอนทำ Local AI ทั้งแชท โมเดล เอเจนต์ ภาพ วิดีโอ Docker และฮาร์ดแวร์ พิมพ์ในช่องค้นหาซ้ายเพื่อกระโดดหาคำ คำที่ผูกกับเครื่องนี้มีบรรทัดเขียวกำกับ</p>
+        </header>
+
+        <section id="how">
+          <h2>วิธีใช้หน้านี้</h2>
+          <p>ไม่ต้องท่องทั้งหน้า อ่านหมวดที่กำลังทำอยู่ แล้วค้นคำที่เจอในล็อกหรือหน้าจอ</p>
+          <ul>
+            <li>ชื่อไทยอยู่หน้า คำอังกฤษตามหลังตัวเอียง</li>
+            <li>บรรทัดเขียวคือความหมายบน DGX Spark เครื่องนี้</li>
+            <li>ค้นด้านซ้าย เช่น พิมพ์ <code>KV</code> <code>LoRA</code> <code>404</code> <code>NVFP4</code></li>
+          </ul>
+        </section>
+
+        <section id="base">
+          <h2>Local AI คืออะไร</h2>
+          <div class="lex">
+            <div class="term"><dt>Local AI <em>on-device / self-hosted AI</em></dt><dd>รันโมเดลบนเครื่องตัวเอง ไม่ส่งข้อความไปคลาวด์ของบริษัทอื่น ข้อดีคือข้อมูลไม่ออกนอกบ้าน ข้อแลกคือต้องมีเครื่องแรงและจัดการไฟล์เอง</dd><p class="here">เครื่องนี้คือสตูดิโอ Local ทั้งแชท เอเจนต์ ภาพ วิดีโอ</p></div>
+            <div class="term"><dt>อินเทอร์เฟซ <em>inference</em></dt><dd>การเอาโมเดลที่ฝึกแล้วมาตอบ ไม่ใช่การฝึกใหม่ คำว่า inference จึงแปลว่างานใช้งานจริง เช่น แชทหรือสร้างภาพ</dd></div>
+            <div class="term"><dt>ฝึกโมเดล <em>training / fine-tune</em></dt><dd>การสอนน้ำหนักใหม่จากข้อมูล Training เต็มก้อนแพงมาก Fine-tune คือสอนต่อจากโมเดลสำเร็จรูป LoRA คือวิธี fine-tune ที่เบากว่า</dd></div>
+            <div class="term"><dt>น้ำหนักโมเดล <em>weights</em></dt><dd>ตัวเลขที่โมเดลเรียนรู้ไว้ เก็บเป็นไฟล์ใหญ่ เช่น .safetensors เปิดโมเดลคือโหลดน้ำหนักขึ้นหน่วยความจำ</dd></div>
+            <div class="term"><dt>พารามิเตอร์ <em>parameters / 7B 27B 35B</em></dt><dd>จำนวนตัวเลขในโมเดล 27B คือประมาณ 2.7 หมื่นล้านตัว ยิ่งมากยิ่งฉลาดได้และยิ่งกินแรม</dd><p class="here">บนเครื่องนี้มี Nemotron 30B-A3B, Qwen 27B, Qwen 35B-A3B</p></div>
+            <div class="term"><dt>เปิดโมเดล <em>load / serve</em></dt><dd>เอาไฟล์จากดิสก์ขึ้น RAM/GPU แล้วเปิด API ให้โปรแกรมอื่นเรียก ยังไม่ได้แปลว่ากำลังคุย</dd></div>
+            <div class="term"><dt>ปิดโมเดล <em>unload / stop</em></dt><dd>เอาโปรเซสออกจากหน่วยความจำ เพื่อคืนแรม ไม่ได้ลบไฟล์บนดิสก์</dd><p class="here">ใช้ stop-model ไม่ใช่ลบโฟลเดอร์ Hugging Face</p></div>
+            <div class="term"><dt>ออฟไลน์ <em>offline / air-gapped</em></dt><dd>ทำงานโดยไม่ต้องมีเน็ต ถ้าไฟล์โมเดลมีครบแล้ว</dd><p class="here">คอนเทนเนอร์ vLLM ตั้ง HF_HUB_OFFLINE=1 จะไม่พยายามดาวน์โหลดซ้ำ</p></div>
+            <div class="term"><dt>คลาวด์ AI <em>hosted API</em></dt><dd>ส่งคำขอไปเซิร์ฟเวอร์คนอื่น เช่น OpenAI Claude Gemini ต่างจาก Local ที่คำนวณในบ้าน</dd></div>
+            <div class="term"><dt>OpenAI-compatible <em>OpenAI API schema</em></dt><dd>รูปแบบคำขอมาตรฐาน /v1/models และ /v1/chat/completions โปรแกรมแชทส่วนใหญ่คุยภาษานี้</dd><p class="here">vLLM บนพอร์ต 8000 เสิร์ฟแบบนี้ Open WebUI และ Hermes ต่อเข้าจุดเดียวกัน</p></div>
+          </div>
+        </section>
+
+        <section id="hw">
+          <h2>ฮาร์ดแวร์และหน่วยความจำ</h2>
+          <div class="lex">
+            <div class="term"><dt>DGX Spark <em>NVIDIA GB10</em></dt><dd>เวิร์กสเตชัน AI ของ NVIDIA ชิป GB10 รวมซีพียูกับจีพียู ใช้หน่วยความจำก้อนเดียว</dd><p class="here">เครื่องนี้ชื่อ spark-48c3 มีประมาณ 121 GiB</p></div>
+            <div class="term"><dt>หน่วยความจำรวม <em>unified memory</em></dt><dd>แรมระบบกับแรมจีพียูเป็นก้อนเดียวกัน ไม่มี VRAM แยก การ์ดจอโน้ตบุ๊กทั่วไปไม่ใช่แบบนี้</dd><p class="here">เลขใน free -h รวมของโมเดลด้วย</p></div>
+            <div class="term"><dt>VRAM <em>video memory</em></dt><dd>แรมของการ์ดจอแยก บนเครื่องรวมแบบนี้คำนี้มักหมายถึงส่วนที่จีพียูจองจากก้อนเดียวกัน</dd></div>
+            <div class="term"><dt>RAM ที่ใช้ <em>used</em></dt><dd>คอลัมน์ใน free -h ที่ถูกจองแล้ว รวมแคชของระบบด้วย อย่าดูแค่ช่องนี้</dd></div>
+            <div class="term"><dt>RAM ที่ใช้ได้ <em>available</em></dt><dd>ตัวเลขที่บอกว่าเปิดโปรแกรมอื่นได้อีกเท่าไร รวมส่วนที่ระบบยอมคืนจากแคช</dd><p class="here">อ่านคอลัมน์นี้หลังเปิดโมเดล</p></div>
+            <div class="term"><dt>บัฟเฟอร์และแคช <em>buff/cache</em></dt><dd>ลินุกซ์เก็บไฟล์ที่เพิ่งอ่านไว้ในแรม ดูเหมือนเต็ม แต่คืนให้โปรแกรมได้เมื่อต้องการ</dd></div>
+            <div class="term"><dt>การจองล่วงหน้า <em>reservation / gpu-memory-utilization</em></dt><dd>vLLM กันสัดส่วนหน่วยความจำตั้งแต่สตาร์ท สำหรับน้ำหนักบวก KV cache ไม่ได้รอให้คุยยาวแล้วค่อยขอ</dd><p class="here">Nemotron/Qwen27 ใช้ 0.82 Qwen35 ใช้ 0.40</p></div>
+            <div class="term"><dt>GiB / GB</dt><dd>GiB คูณ 1024, GB คูณ 1000 เครื่องนี้โชว์ GiB ใน free -h ประมาณ 121</dd></div>
+            <div class="term"><dt>CUDA</dt><dd>ชุดคำสั่งให้โปรแกรมใช้จีพียู NVIDIA ได้ ถ้า CUDA ไม่ขึ้น โมเดลจะช้าหรือไม่ขึ้นเลย</dd></div>
+            <div class="term"><dt>Tensor Core</dt><dd>วงจรในจีพียู NVIDIA สำหรับคูณเมทริกซ์ของโมเดล AI ควอนไทซ์อย่าง NVFP4 ออกแบบมาใช้ส่วนนี้</dd></div>
+            <div class="term"><dt>NVLink / สายเชื่อมจีพียู</dt><dd>สายเร็วระหว่างจีพียูหลายใบ เครื่องใบเดียวอย่าง Spark ไม่ต้องยุ่ง</dd></div>
+            <div class="term"><dt>Swap</dt><dd>พื้นที่ดิสก์ที่ระบบยืมเมื่อแรมเต็ม ช้ามาก ถ้าเห็น swap ถูกใช้เยอะตอนเปิดโมเดล แปลว่าจองสูงเกิน</dd></div>
+            <div class="term"><dt>OOM <em>out of memory</em></dt><dd>หน่วยความจำไม่พอ โปรเซสถูกฆ่าหรือสตาร์ทไม่ขึ้น</dd></div>
+            <div class="term"><dt>thermal / อุณหภูมิ</dt><dd>จีพียูร้อนแล้วลดความเร็วเอง งานวิดีโอยาวอาจช้าลงโดยไม่พัง</dd></div>
+          </div>
+        </section>
+
+        <section id="llm">
+          <h2>ชนิดโมเดลภาษา</h2>
+          <div class="lex">
+            <div class="term"><dt>LLM <em>Large Language Model</em></dt><dd>โมเดลภาษาใหญ่ เดาคำถัดไปจากข้อความที่ให้มา ใช้แชท เขียนโค้ด สรุปเอกสาร</dd></div>
+            <div class="term"><dt>ฐานโมเดล <em>base model</em></dt><dd>โมเดลที่ยังไม่ถูกปรับให้คุยสุภาพ เก่งเติมข้อความแต่แชทไม่เป็นธรรมชาติ</dd></div>
+            <div class="term"><dt>อินสตรัค <em>instruct / chat model</em></dt><dd>โมเดลที่ถูกสอนให้ตอบตามบทบาท ผู้ใช้-ผู้ช่วย</dd></div>
+            <div class="term"><dt>MoE <em>Mixture of Experts</em></dt><dd>โมเดลที่แยกเป็นผู้เชี่ยวชาญหลายชุด ตอนตอบใช้แค่บางชุด ดังนั้น 35B-A3B ไม่ได้คิดด้วย 35 พันล้านทุกโทเค็น</dd><p class="here">Nemotron Lightning และ Qwen 35B บนเครื่องนี้เป็น MoE</p></div>
+            <div class="term"><dt>A3B</dt><dd>Active 3B ประมาณว่าตอนคิดใช้พารามิเตอร์ราว 3 พันล้าน จากทั้งหมดที่ใหญ่กว่า</dd></div>
+            <div class="term"><dt>หนาแน่น <em>dense</em></dt><dd>โมเดลที่ใช้พารามิเตอร์เกือบทั้งหมดทุกครั้งที่คิด เช่น Qwen 27B สูตรข้อความอย่างเดียวบนเครื่องนี้</dd></div>
+            <div class="term"><dt>เหตุผล <em>reasoning model</em></dt><dd>โมเดลที่คิดเงียบก่อนตอบ หน้าจออาจโชว์ Thought ชั่วคราว</dd></div>
+            <div class="term"><dt>ทูลคอล <em>tool calling / function calling</em></dt><dd>โมเดลขอให้โปรแกรมรันเครื่องมือ เช่น อ่านไฟล์ ค้นเว็บ แล้วเอาผลกลับมาตอบ</dd><p class="here">สูตร vLLM เปิด --enable-auto-tool-choice และ parser qwen3_coder</p></div>
+            <div class="term"><dt>มัลติโมดอล <em>multimodal</em></dt><dd>รับได้ทั้งข้อความ รูป เสียง ไม่ใช่แค่พิมพ์</dd></div>
+            <div class="term"><dt>วิชัน <em>vision encoder</em></dt><dd>ส่วนที่อ่านรูปแล้วแปลงเป็นสัญญาณให้โมเดลภาษาเข้าใจ</dd></div>
+            <div class="term"><dt>เอมเบดดิ้ง <em>embedding model</em></dt><dd>โมเดลที่แปลงข้อความเป็นเวกเตอร์ สำหรับค้นหาเอกสาร ไม่ใช่แชท</dd></div>
+            <div class="term"><dt>reranker</dt><dd>โมเดลจัดอันดับเอกสารที่ค้นได้ให้น่าใช้ก่อนส่งเข้าแชท</dd></div>
+            <div class="term"><dt>สเปกคูเลทีฟ <em>speculative decoding / DSpark</em></dt><dd>ใช้โมเดลเล็กทายคำล่วงหน้า แล้วให้โมเดลใหญ่ตรวจ เร่งความเร็วได้</dd><p class="here">Nemotron ใช้ DSpark เป็นโมเดลทาย</p></div>
+            <div class="term"><dt>Nemotron</dt><dd>ตระกูลโมเดลของ NVIDIA</dd><p class="here">ตัวที่ลงไว้คือ NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4</p></div>
+            <div class="term"><dt>Qwen</dt><dd>ตระกูลโมเดลของ Alibaba รุ่น 3.6 มีทั้ง 27B และ 35B-A3B</dd></div>
+            <div class="term"><dt>tokenizer</dt><dd>ตัวหั่นข้อความเป็นโทเค็น คนละโมเดลหั่นไม่เหมือนกัน อย่าเอา tokenizer คนละตัวมาปน</dd></div>
+          </div>
+        </section>
+
+        <section id="files">
+          <h2>ไฟล์และฟอร์แมต</h2>
+          <div class="lex">
+            <div class="term"><dt>Hugging Face Hub</dt><dd>คลังโมเดลออนไลน์ ชื่อโมเดลมักเป็น org/ชื่อ เช่น nvidia/Qwen3.6-35B-A3B-NVFP4</dd></div>
+            <div class="term"><dt>HF cache</dt><dd>โฟลเดอร์ที่เก็บไฟล์ที่ดาวน์โหลดแล้ว</dd><p class="here">อยู่ที่ ~/.cache/huggingface/hub</p></div>
+            <div class="term"><dt>safetensors</dt><dd>ฟอร์แมตน้ำหนักที่ปลอดภัยกว่า pickle ไม่รันโค้ดตอนโหลด ใช้ทั้ง LLM และภาพ</dd></div>
+            <div class="term"><dt>GGUF</dt><dd>ฟอร์แมตยอดนิยมของ llama.cpp / Ollama รวมน้ำหนักกับค่าตั้งในไฟล์เดียว เครื่องนี้เสิร์ฟหลักด้วย vLLM+NVFP4 ไม่ใช่ GGUF</dd></div>
+            <div class="term"><dt>checkpoint</dt><dd>จุดบันทึกน้ำหนักตอนฝึกหรือแพ็กเกจโมเดลภาพแบบเก่าใน ComfyUI</dd></div>
+            <div class="term"><dt>config.json</dt><dd>ไฟล์บอกโครงสร้างโมเดล จำนวนชั้น ขนาดซ่อน ขาดไฟล์นี้โหลดไม่ขึ้น</dd></div>
+            <div class="term"><dt>tokenizer.json</dt><dd>ตารางหั่นคำของโมเดลนั้น</dd></div>
+            <div class="term"><dt>license / gated</dt><dd>โมเดลบางตัวต้องกดยอมรับบน Hugging Face และล็อกอินก่อนดาวน์โหลด</dd></div>
+            <div class="term"><dt>HF token</dt><dd>รหัสเข้าถึงโมเดลที่ล็อกอยู่ ห้ามพิมพ์ในคำสั่งที่จะถูกบันทึกประวัติ</dd></div>
+            <div class="term"><dt>รีวิชัน <em>revision / commit</em></dt><dd>เวอร์ชันของไฟล์บนฮับ เปลี่ยนรีวิชันแล้วพฤติกรรมโมเดลอาจเปลี่ยน</dd></div>
+            <div class="term"><dt>symlink / ลิงก์</dt><dd>ไฟล์ชี้ไปอีกไฟล์ เช่น qwen35-start ชี้ไป qwen-switch</dd></div>
+          </div>
+        </section>
+
+        <section id="quant">
+          <h2>ควอนไทซ์</h2>
+          <div class="lex">
+            <div class="term"><dt>ควอนไทซ์ <em>quantization</em></dt><dd>ลดความละเอียดตัวเลขของน้ำหนัก เพื่อให้ไฟล์เล็กลงและกินแรมน้อย แลกกับความแม่นที่อาจลดเล็กน้อย</dd></div>
+            <div class="term"><dt>FP16 / BF16</dt><dd>ทศนิยม 16 บิต คุณภาพสูง กินแรมประมาณสองเท่าของ 8 บิต</dd></div>
+            <div class="term"><dt>FP8</dt><dd>8 บิตแบบทศนิยม ใช้ทั้งน้ำหนักและ KV cache ได้</dd><p class="here">สูตร vLLM ตั้ง --kv-cache-dtype fp8</p></div>
+            <div class="term"><dt>INT8 / INT4 / Q4_K_M</dt><dd>จำนวนเต็ม 8 หรือ 4 บิต ที่พบบ่อยใน GGUF ชื่อ Q4_K_M คือสูตร 4 บิตแบบหนึ่ง</dd></div>
+            <div class="term"><dt>NVFP4</dt><dd>ควอนไทซ์ 4 บิตของ NVIDIA สำหรับชิปใหม่ ไฟล์เล็ก เร็วบน Spark</dd><p class="here">โมเดลหลักบนเครื่องนี้เป็น NVFP4 เกือบทั้งหมด</p></div>
+            <div class="term"><dt>ModelOpt</dt><dd>ชุดเครื่องมือควอนไทซ์ของ NVIDIA ที่ vLLM ใช้ถอด NVFP4</dd><p class="here">Qwen สูตรนี้ใส่ --quantization modelopt</p></div>
+            <div class="term"><dt>AWQ / GPTQ / GGUF quant</dt><dd>วิธีควอนไทซ์คนละสำนัก อย่าปนไฟล์คนละวิธีในสูตรเดียวกัน</dd></div>
+            <div class="term"><dt>ความแม่น <em>perplexity / quality drop</em></dt><dd>ควอนไทซ์แรงเกิน โมเดลจะลืมรายละเอียดหรือตอบเพี้ยน</dd></div>
+          </div>
+        </section>
+
+        <section id="serve">
+          <h2>การเสิร์ฟและ API</h2>
+          <div class="lex">
+            <div class="term"><dt>vLLM</dt><dd>โปรแกรมเสิร์ฟ LLM เร็ว รองรับแบตช์หลายคำขอและ KV cache</dd><p class="here">ใช้ภาพ vllm/vllm-openai ฟังพอร์ต 8000</p></div>
+            <div class="term"><dt>Ollama</dt><dd>โปรแกรมเสิร์ฟที่ใช้ง่าย นิยมกับ GGUF เครื่องนี้ไม่ได้ใช้เป็นตัวหลัก</dd></div>
+            <div class="term"><dt>llama.cpp</dt><dd>เอนจินซีพียู/จีพียูเบา สำหรับ GGUF</dd></div>
+            <div class="term"><dt>TensorRT-LLM</dt><dd>เอนจินของ NVIDIA เน้นความเร็วสูง ต้องคอมไพล์เอนจินแยก</dd></div>
+            <div class="term"><dt>served-model-name</dt><dd>ชื่อที่ API ประกาศให้คนอื่นเรียก ไม่ใช่ชื่อโฟลเดอร์บนดิสก์</dd><p class="here">Qwen 35B ประกาศทั้งชื่อเต็มและชื่อสั้น</p></div>
+            <div class="term"><dt>model id</dt><dd>สตริงในช่อง id ของ /v1/models โปรแกรมยิงชื่อนี้อย่างเดียว ผิดหนึ่งตัวอักษรได้ 404</dd></div>
+            <div class="term"><dt>endpoint</dt><dd>ที่อยู่บริการ เช่น http://127.0.0.1:8000/v1</dd></div>
+            <div class="term"><dt>base URL</dt><dd>ส่วนต้นของ API ที่โปรแกรมแชทต้องชี้ไป</dd><p class="here">Open WebUI ชี้ http://vllm:8000/v1 ในเครือข่ายด็อกเกอร์</p></div>
+            <div class="term"><dt>API key</dt><dd>รหัสกันคนแปลกหน้า บางระบบรับค่า dummy ถ้าไม่ได้ล็อกจริง</dd></div>
+            <div class="term"><dt>สตรีม <em>streaming</em></dt><dd>ส่งคำตอบทีละชิ้น ไม่รอทั้งย่อหน้า</dd></div>
+            <div class="term"><dt>SSE <em>server-sent events</em></dt><dd>ช่องทางที่เบราว์เซอร์รับสตรีมจากเซิร์ฟเวอร์</dd></div>
+            <div class="term"><dt>health / ready</dt><dd>สถานะว่า API ตอบได้แล้ว ตอนโหลดโมเดลมักยังไม่ ready</dd></div>
+            <div class="term"><dt>โปรไฟล์ Compose <em>profile</em></dt><dd>ชุดบริการใน docker-compose ที่เปิดทีละแบบ</dd><p class="here">nemotron / qwen27 / qwen35</p></div>
+          </div>
+        </section>
+
+        <section id="infer">
+          <h2>การอนุมาน</h2>
+          <div class="lex">
+            <div class="term"><dt>โทเค็น <em>token</em></dt><dd>ชิ้นข้อความที่โมเดลอ่านและเขียน ไม่ใช่คำภาษาไทยหนึ่งคำเสมอ บางคำถูกหั่นหลายชิ้น</dd></div>
+            <div class="term"><dt>พรีฟิล <em>prefill</em></dt><dd>ช่วงอ่านพรอมต์ทั้งก้อนก่อนเริ่มพิมพ์ตอบ กินเวลาตอนข้อความยาว</dd></div>
+            <div class="term"><dt>ดีโค้ด <em>decode</em></dt><dd>ช่วงพิมพ์คำตอบทีละโทเค็น</dd></div>
+            <div class="term"><dt>chunked prefill</dt><dd>หั่นการอ่านพรอมต์ยาวเป็นท่อน เพื่อไม่ชนหน่วยความจำ</dd></div>
+            <div class="term"><dt>max-model-len</dt><dd>ความยาวบริบทยาวสุดที่อนุญาต ยิ่งยาวยิ่งจอง KV มาก</dd><p class="here">Qwen35 สูตรสตูดิโอ 131072 โทเค็น</p></div>
+            <div class="term"><dt>max-num-seqs</dt><dd>จำนวนบทสนทนาพร้อมกันที่เอนจินรับได้</dd></div>
+            <div class="term"><dt>batch / max-num-batched-tokens</dt><dd>รวมงานหลายคำขอในรอบคำนวณเดียวกัน</dd></div>
+            <div class="term"><dt>อุณหภูมิ <em>temperature</em></dt><dd>สุ่มคำตอบ ต่ำ = ตรง สูง = หลากหลาย</dd></div>
+            <div class="term"><dt>top-p / top-k</dt><dd>จำกัดชุดคำที่สุ่มได้ ใช้คู่กับอุณหภูมิ</dd></div>
+            <div class="term"><dt>seed</dt><dd>ค่าตั้งต้นการสุ่ม ใช้ซ้ำแล้วได้ผลใกล้เดิม</dd></div>
+            <div class="term"><dt>system prompt</dt><dd>คำสั่งบทบาทที่อยู่เหนือข้อความผู้ใช้</dd></div>
+            <div class="term"><dt>stop sequence</dt><dd>ข้อความที่เจอแล้วให้หยุดพิมพ์</dd></div>
+            <div class="term"><dt>latency / TTFT / TPS</dt><dd>เวลาเริ่มคำแรก และจำนวนโทเค็นต่อวินาที</dd></div>
+            <div class="term"><dt>prefix caching</dt><dd>จำส่วนต้นบทสนทนาที่ซ้ำ เพื่อไม่คิดใหม่</dd></div>
+            <div class="term"><dt>attention backend / flashinfer</dt><dd>วิธีคำนวณความสนใจในชั้นทรานสฟอร์เมอร์ เลือกของที่ชิปรองรับจะเร็วขึ้น</dd></div>
+            <div class="term"><dt>moe-backend / marlin</dt><dd>เอนจินคูณของ MoE</dd></div>
+          </div>
+        </section>
+
+        <section id="ctx">
+          <h2>บริบทและ KV cache</h2>
+          <div class="lex">
+            <div class="term"><dt>บริบท <em>context window</em></dt><dd>ข้อความเก่ายาวสุดที่โมเดลยังจำในรอบนี้ได้ เกินแล้วของเก่าถูกตัด</dd></div>
+            <div class="term"><dt>KV cache</dt><dd>ที่เก็บผลคำนวณของคำเก่า เพื่อไม่ต้องอ่านทั้งบทใหม่ทุกครั้งที่พิมพ์คำถัดไป</dd><p class="here">เป็นเหตุที่ RAM พุ่งทันทีตอนสตาร์ท แม้ยังไม่ได้คุย</p></div>
+            <div class="term"><dt>KV cache dtype</dt><dd>ความละเอียดของแคชนี้ FP8 เล็กกว่า FP16</dd></div>
+            <div class="term"><dt>หน้าต่างเลื่อน <em>sliding window</em></dt><dd>จำแค่ท้ายบท เพื่อประหยัดแคช</dd></div>
+            <div class="term"><dt>RAG <em>retrieval-augmented generation</em></dt><dd>ค้นเอกสารที่เกี่ยวข้องแล้วแปะเข้าพรอมต์ ไม่ได้แปลว่าโมเดลจำไฟล์ทั้งเครื่อง</dd></div>
+            <div class="term"><dt>เวกเตอร์สโตร์ <em>vector store</em></dt><dd>ฐานที่เก็บเอมเบดดิ้งสำหรับค้น RAG</dd></div>
+            <div class="term"><dt>chunk</dt><dd>ท่อนเอกสารที่หั่นไว้สำหรับค้น</dd></div>
+          </div>
+        </section>
+
+        <section id="chat">
+          <h2>แชทและเว็บ</h2>
+          <div class="lex">
+            <div class="term"><dt>Open WebUI</dt><dd>หน้าเว็บแชทที่คุยกับ API แบบ OpenAI ได้</dd><p class="here">พอร์ต 18473 คนละตัวกับโมเดล</p></div>
+            <div class="term"><dt>Workspace / Admin</dt><dd>หน้าจัดการโมเดล ผู้ใช้ และการต่อ API ของ Open WebUI</dd></div>
+            <div class="term"><dt>connection</dt><dd>การชี้ Open WebUI ไปที่ vLLM</dd></div>
+            <div class="term"><dt>Arena Model</dt><dd>รายการเปรียบเทียบใน Open WebUI ไม่ใช่โมเดลในเครื่อง</dd></div>
+            <div class="term"><dt>เซสชันแชท <em>chat session</em></dt><dd>ห้องสนทนาหนึ่งห้อง ประวัติเก็บในฐานของเว็บ ไม่ได้อยู่ใน vLLM</dd></div>
+            <div class="term"><dt>system message</dt><dd>ข้อความบทบาทที่เว็บแอบส่งนำหน้า</dd></div>
+          </div>
+        </section>
+
+        <section id="agent">
+          <h2>เอเจนต์และเครื่องมือ</h2>
+          <div class="lex">
+            <div class="term"><dt>เอเจนต์ <em>agent</em></dt><dd>โปรแกรมที่คุยแล้วลงมือได้เอง เช่น อ่านไฟล์ รันคำสั่ง ตั้งงานตามเวลา ไม่ใช่แค่ตอบข้อความ</dd></div>
+            <div class="term"><dt>NemoClaw</dt><dd>ตัวจัดการ sandbox ของเอเจนต์</dd><p class="here">คำสั่ง nemoclaw ชื่อกรง hermes</p></div>
+            <div class="term"><dt>Hermes Agent</dt><dd>เอเจนต์ในกรง มีแดชบอร์ด Chat Sessions Cron Skills</dd><p class="here">เวอร์ชัน 0.19.0 พอร์ต 18789</p></div>
+            <div class="term"><dt>sandbox / กรง</dt><dd>พื้นที่แยกที่เอเจนต์รันได้โดยไม่เดินเล่นทั้งเครื่อง</dd></div>
+            <div class="term"><dt>policy</dt><dd>กฎว่ากรงแตะเน็ต ไฟล์ หรือจีพียูได้แค่ไหน</dd></div>
+            <div class="term"><dt>gateway</dt><dd>ประตูที่แดชบอร์ดคุยกับเอเจนต์ในกรง</dd></div>
+            <div class="term"><dt>MCP <em>Model Context Protocol</em></dt><dd>มาตรฐานต่อเครื่องมือภายนอกให้เอเจนต์เรียก</dd></div>
+            <div class="term"><dt>skill / plugin</dt><dd>ชุดความสามารถที่ติดตั้งเพิ่มให้เอเจนต์</dd></div>
+            <div class="term"><dt>cron</dt><dd>งานตามเวลา เช่น ตรวจสุขภาพทุกเช้า</dd></div>
+            <div class="term"><dt>channel</dt><dd>ช่องทางคุยภายนอก เช่น Telegram</dd></div>
+            <div class="term"><dt>inference.local</dt><dd>ชื่อในกรงที่ชี้กลับมาที่ vLLM บนโฮสต์</dd></div>
+            <div class="term"><dt>404 model does not exist</dt><dd>เอเจนต์ยิงชื่อโมเดลที่ API ไม่ได้ประกาศ ไฟล์อาจมีครบแต่ชื่อไม่ตรง</dd></div>
+          </div>
+        </section>
+
+        <section id="image">
+          <h2>สร้างภาพ</h2>
+          <div class="lex">
+            <div class="term"><dt>ComfyUI</dt><dd>โปรแกรมสร้างภาพและวิดีโอแบบต่อโหนด</dd><p class="here">พอร์ต 8188 คอนเทนเนอร์ comfyui-dgx</p></div>
+            <div class="term"><dt>โหนด <em>node</em></dt><dd>กล่องงานหนึ่งอย่าง เช่น โหลดโมเดล เขียนพรอมต์ บันทึกรูป</dd></div>
+            <div class="term"><dt>กราฟ / เวิร์กโฟลว์ <em>workflow</em></dt><dd>ชุดโหนดที่ต่อกัน เซฟเป็นไฟล์ JSON</dd></div>
+            <div class="term"><dt>เทมเพลต</dt><dd>กราฟสำเร็จรูปในเมนู Templates</dd></div>
+            <div class="term"><dt>ดิฟฟิวชัน <em>diffusion</em></dt><dd>วิธีสร้างภาพโดยค่อย ๆ เอาสัญญาณรบกวนออกจนเป็นรูป</dd></div>
+            <div class="term"><dt>latent</dt><dd>ภาพในรูปย่อที่โมเดลคิด ยังไม่ใช่พิกเซลจนกว่าจะถอดด้วย VAE</dd></div>
+            <div class="term"><dt>VAE</dt><dd>ตัวแปลงระหว่างพิกเซลกับ latent</dd></div>
+            <div class="term"><dt>CLIP / text encoder</dt><dd>ตัวอ่านพรอมต์ข้อความให้เป็นสัญญาณที่โมเดลภาพเข้าใจ</dd></div>
+            <div class="term"><dt>UNet / DiT / diffusion model</dt><dd>แกนสร้างภาพ ไฟล์ใหญ่อยู่โฟลเดอร์ diffusion_models หรือ checkpoints</dd></div>
+            <div class="term"><dt>KSampler</dt><dd>โหนดสุ่มทีละขั้นจากสัญญาณรบกวนเป็นรูป</dd></div>
+            <div class="term"><dt>steps</dt><dd>จำนวนขั้นสุ่ม ยิ่งมากยิ่งนาน โมเดลเทอร์โอบางตัวใช้ไม่กี่ขั้น</dd></div>
+            <div class="term"><dt>CFG / guidance</dt><dd>ความแรงที่บังคับให้ตามพรอมต์ สูงเกินรูปแข็งหรือแตก</dd></div>
+            <div class="term"><dt>denoise</dt><dd>ตอนแก้ภาพ ยิ่งสูงยิ่งทิ้งต้นฉบับมาก</dd></div>
+            <div class="term"><dt>seed</dt><dd>ค่าสุ่มของรูป ใช้ซ้ำได้องค์ประกอบใกล้เดิม</dd></div>
+            <div class="term"><dt>พรอมต์บวก / ลบ <em>positive / negative</em></dt><dd>สิ่งที่อยากได้ และสิ่งที่ไม่อยากได้</dd></div>
+            <div class="term"><dt>LoRA</dt><dd>ไฟล์สไตล์หรือตัวละครแปะทับโมเดลหลัก โดยไม่ต้องโหลดโมเดลใหม่ทั้งก้อน</dd></div>
+            <div class="term"><dt>ControlNet</dt><dd>บังคับท่าทาง เส้นขอบ หรือโพสจากรูปอ้างอิง</dd></div>
+            <div class="term"><dt>IP-Adapter</dt><dd>ยืมสไตล์หรือใบหน้าจากรูปอ้างอิง</dd></div>
+            <div class="term"><dt>checkpoint (ภาพ)</dt><dd>โมเดลภาพแพ็กเดียวแบบเก่า เช่น SD 1.5 วางใน models/checkpoints</dd></div>
+            <div class="term"><dt>Z-Image-Turbo</dt><dd>กราฟเริ่มต้นบนเครื่องนี้ ยังขาดไฟล์น้ำหนักอยู่</dd></div>
+            <div class="term"><dt>กรอบแดง</dt><dd>โหนดหาไฟล์ไม่เจอ ยังกด Run ไม่ได้</dd></div>
+            <div class="term"><dt>อัปสเกล <em>upscale</em></dt><dd>ขยายภาพให้ใหญ่ขึ้น ใช้โมเดลอย่าง RealESRGAN</dd></div>
+            <div class="term"><dt>batch size</dt><dd>จำนวนรูปต่อรอบ งานทดสอบใช้ 1</dd></div>
+          </div>
+        </section>
+
+        <section id="video">
+          <h2>สร้างวิดีโอ</h2>
+          <div class="lex">
+            <div class="term"><dt>Text-to-Video</dt><dd>พิมพ์คำอธิบายแล้วได้คลิป</dd></div>
+            <div class="term"><dt>Image-to-Video</dt><dd>เอาภาพนิ่งแล้วทำให้งานเคลื่อน</dd></div>
+            <div class="term"><dt>เฟรม <em>frame</em></dt><dd>รูปหนึ่งใบในคลิป 24 เฟรมต่อวินาที ประมาณ 1 วินาที</dd></div>
+            <div class="term"><dt>fps</dt><dd>จำนวนเฟรมต่อวินาที</dd></div>
+            <div class="term"><dt>RIFE / VFI</dt><dd>สร้างเฟรมคั่นเพื่อให้คลิปลื่น โดยไม่คำนวณใหม่ทั้งเรื่อง</dd><p class="here">มีโหนด Frame Interpolation แล้ว ยังต้องมีไฟล์น้ำหนัก RIFE</p></div>
+            <div class="term"><dt>Video Helper Suite / VHS</dt><dd>ชุดโหนดโหลด รวม และบันทึกวิดีโอใน ComfyUI</dd></div>
+            <div class="term"><dt>Wan / LTX / MiniMax</dt><dd>ตระกูลโมเดลวิดีโอในเทมเพลต แต่ละใบใช้ไฟล์คนละชุด</dd></div>
+            <div class="term"><dt>720p / 1080p</dt><dd>ความสูงภาพ 720 ปลอดภัยกว่าสำหรับงานแรกบนเครื่องรวมแรม</dd></div>
+            <div class="term"><dt>webp / mp4</dt><dd>บางกราฟเซฟเว็บพีก่อน แปลงเป็นเอ็มพีสี่ด้วย ffmpeg ได้</dd></div>
+          </div>
+        </section>
+
+        <section id="docker">
+          <h2>Docker และคอนเทนเนอร์</h2>
+          <div class="lex">
+            <div class="term"><dt>คอนเทนเนอร์ <em>container</em></dt><dd>กล่องโปรแกรมแยกจากระบบหลัก มีชื่อ เช่น vllm-qwen35, open-webui, comfyui-dgx</dd></div>
+            <div class="term"><dt>อิมเมจ <em>image</em></dt><dd>แม่พิมพ์ของคอนเทนเนอร์ เช่น vllm/vllm-openai:latest</dd></div>
+            <div class="term"><dt>volume / เมาท์</dt><dd>โฟลเดอร์บนเครื่องที่แปะเข้ากล่อง ลบกล่องแล้วไฟล์ยังอยู่</dd></div>
+            <div class="term"><dt>docker compose</dt><dd>ไฟล์กำหนดหลายกล่องและความสัมพันธ์</dd></div>
+            <div class="term"><dt>docker ps</dt><dd>ดูกล่องที่กำลังรัน ชื่อ สถานะ พอร์ต</dd></div>
+            <div class="term"><dt>docker logs</dt><dd>อ่านบันทึกในกล่อง ใช้ตอนสตาร์ทไม่ขึ้น</dd></div>
+            <div class="term"><dt>restart unless-stopped</dt><dd>เครื่องรีบูตแล้วกล่องเปิดเอง ยกเว้นคุณหยุดเอง</dd></div>
+            <div class="term"><dt>IPC / shm_size</dt><dd>หน่วยความจำแชร์ในกล่อง โมเดลใหญ่ต้องตั้งพอ</dd></div>
+            <div class="term"><dt>gpus: all</dt><dd>ยอมให้กล่องเห็นจีพียู</dd></div>
+          </div>
+        </section>
+
+        <section id="net">
+          <h2>เครือข่ายและพอร์ต</h2>
+          <div class="lex">
+            <div class="term"><dt>พอร์ต <em>port</em></dt><dd>ช่องบริการบนเครื่อง คนละโปรแกรมคนละช่อง</dd><p class="here">18473 แชท · 8000 โมเดล · 8188 ภาพ · 18789 เอเจนต์ · 8790 คู่มือ</p></div>
+            <div class="term"><dt>127.0.0.1 / localhost</dt><dd>เครื่องนี้เอง จากมือถือตรง ๆ เข้า 127.0.0.1 ของโทรศัพท์ไม่ได้</dd></div>
+            <div class="term"><dt>192.168.178.98</dt><dd>ที่อยู่เครื่องนี้ในบ้าน มือถือใน Wi-Fi เดียวกันใช้ไอพีนี้</dd></div>
+            <div class="term"><dt>0.0.0.0</dt><dd>ฟังทุกอินเทอร์เฟซ เครื่องอื่นในบ้านเข้าได้ถ้าไฟร์วอลล์ยอม</dd></div>
+            <div class="term"><dt>LAN / Local Network</dt><dd>วงเน็ตบ้าน บางเครื่องแอปเปิลบล็อกจนกว่าจะเปิดสิทธิ์ให้เบราว์เซอร์</dd></div>
+            <div class="term"><dt>ไฟร์วอลล์ / ufw</dt><dd>ตัวกันพอร์ต อย่าปิดทั้งระบบ เปิดเฉพาะวงบ้านถ้าจำเป็น</dd></div>
+            <div class="term"><dt>TLS / HTTPS</dt><dd>การเข้ารหัสเว็บ บริการในบ้านหลายตัวเป็น HTTP ล้วน</dd></div>
+            <div class="term"><dt>reverse proxy</dt><dd>ตัวหน้าเช่น Nginx สำหรับทำชื่อโดเมนและ HTTPS</dd></div>
+            <div class="term"><dt>WebSocket</dt><dd>ช่องสองทางที่แดชบอร์ดบางตัวใช้คุยแบบเรียลไทม์</dd></div>
+          </div>
+        </section>
+
+        <section id="cmds">
+          <h2>คำสั่งบนเครื่องนี้</h2>
+          <div class="lex">
+            <div class="term"><dt>start-nemotron / start-qwen27 / start-qwen35</dt><dd>คำสั่งสตูดิโอ ขึ้นต้นด้วย start- ปิดตัวเก่าแล้วเปิดสูตรใน docker-compose</dd></div>
+            <div class="term"><dt>qwen35-start</dt><dd>สูตรเก่าของเครื่อง ลงท้าย -start เปิดกล่อง nemoclaw-vllm คนละตัว</dd><p class="here">อย่าใช้คู่กับ start-qwen35</p></div>
+            <div class="term"><dt>stop-model</dt><dd>ปิดโมเดลภาษา คืนแรม หน้าเว็บยังอยู่ได้</dd></div>
+            <div class="term"><dt>start-webui / stop-webui</dt><dd>เปิดปิดเฉพาะหน้าแชท ไม่แตะโมเดล</dd></div>
+            <div class="term"><dt>llm-status</dt><dd>ดูว่าเว็บกับโมเดลเปิดอยู่และ API ประกาศชื่ออะไร</dd></div>
+            <div class="term"><dt>start-guide / stop-guide</dt><dd>เปิดปิดเว็บคู่มือพอร์ต 8790</dd></div>
+            <div class="term"><dt>~/ai/comfyui/scripts/start.sh</dt><dd>เปิด ComfyUI โดยไม่แตะกล่องแชท</dd></div>
+            <div class="term"><dt>nemoclaw hermes status / doctor / recover</dt><dd>ดูสุขภาพ ซ่อมเกตเวย์ และพิมพ์ URL แดชบอร์ดของเอเจนต์</dd></div>
+            <div class="term"><dt>PATH</dt><dd>ลำดับโฟลเดอร์ที่เชลล์เดินหาคำสั่ง</dd></div>
+            <div class="term"><dt>Tab completion</dt><dd>กดแท็บเติมชื่อไฟล์ พิมพ์ qwen35 แล้วแท็บมักได้สูตรเก่า</dd></div>
+          </div>
+        </section>
+
+        <section id="err">
+          <h2>คำที่เจอตอนพัง</h2>
+          <div class="lex">
+            <div class="term"><dt>404 Not Found</dt><dd>หาทรัพไม่เจอ ถ้าเป็นโมเดล แปลว่าชื่อที่เรียกไม่มีใน /v1/models</dd></div>
+            <div class="term"><dt>401 / 403</dt><dd>รหัสไม่ผ่านหรือไม่มีสิทธิ์</dd></div>
+            <div class="term"><dt>Connection refused</dt><dd>ไม่มีใครฟังพอร์ตนั้น โปรแกรมยังไม่เปิด</dd></div>
+            <div class="term"><dt>Timeout / Timed out</dt><dd>รอเกินกำหนด โมเดลรอบแรกอาจยังโหลดอยู่</dd></div>
+            <div class="term"><dt>EngineCore failed</dt><dd>vLLM สร้างเอนจินไม่สำเร็จ มักเพราะจองแรมเกินของที่ว่าง</dd></div>
+            <div class="term"><dt>Network is unreachable</dt><dd>ในกล่องออกเน็ตไม่ได้ ถ้าไฟล์มีแล้วให้ใช้โหมดออฟไลน์</dd></div>
+            <div class="term"><dt>Missing Models</dt><dd>ComfyUI หาไฟล์น้ำหนักไม่เจอ</dd></div>
+            <div class="term"><dt>CUDA out of memory</dt><dd>จีพียูเต็ม ลดความละเอียด ลดบริบท หรือปิดโมเดลอื่น</dd></div>
+            <div class="term"><dt>unhealthy / unavailable</dt><dd> Hermes ต่อ API ไม่ได้หรือชื่อไม่ตรง</dd></div>
+            <div class="term"><dt>Invalid credentials</dt><dd>อีเมลหรือรหัส Open WebUI ผิด</dd></div>
+            <div class="term"><dt>PyTorch is not installed</dt><dd>ใน Manager ของเครื่องนี้อาจเป็นข้อความเท็จ ถ้า system_stats ยังเห็น GB10</dd></div>
+          </div>
+        </section>
+
+        <div class="pager">
+          <a href="fix.html"><small>กลับ</small>แก้ปัญหา</a>
+          <a href="index.html"><small>จบ</small>หน้าแรก</a>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="assets/app.js"></script>
+</body>
+</html>

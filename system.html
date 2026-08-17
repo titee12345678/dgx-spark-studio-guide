@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ระบบเครื่อง · คู่มือ DGX Spark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"></header>
+    <div class="page">
+      <aside class="side">
+        <input class="search" id="q" type="search" placeholder="ค้นในหน้าระบบ...">
+        <nav class="nav">
+          <div class="group">ระบบ</div>
+          <a href="#ops">เปิดปิดทั้งสตูดิโอ</a>
+          <a href="#ram">อ่าน RAM</a>
+          <a href="#dont">สิ่งที่ห้ามทำ</a>
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="hero">
+          <div class="kicker">หมวดระบบ</div>
+          <h1>ดูแลเครื่องทั้งก้อน</h1>
+          <p class="lede">รวมคำสั่งเปิดปิดหลายโปรแกรม และการอ่าน RAM ไม่ปนกับวิธีคุยแชทหรือต่อโหนดภาพ</p>
+        </header>
+
+        <section id="ops">
+          <h2>เปิดปิดทั้งสตูดิโอ</h2>
+          <h3>พักเครื่องแบบเหลือเว็บไว้ดู</h3>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>stop-model</pre></div>
+          <h3>คุยต่อด้วย Nemotron</h3>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>start-nemotron</pre></div>
+          <h3>ปิดทุกอย่างที่เกี่ยวกับแชท</h3>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>stop-model
+stop-webui</pre></div>
+          <h3>ปิดสร้างภาพ</h3>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker stop comfyui-dgx</pre></div>
+          <h3>ดูล็อกโมเดลถ้าเปิดไม่ขึ้น</h3>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker logs --tail 80 vllm-nemotron
+docker logs --tail 80 vllm-qwen27
+docker logs --tail 80 vllm-qwen35</pre></div>
+          <p>ใช้ชื่อคอนเทนเนอร์ตามตัวที่เพิ่งสตาร์ท ตัวเก่าก่อนมีสคริปต์ชื่อ <code>nemotron-vllm</code></p>
+        </section>
+
+        <section id="ram">
+          <h2>อ่าน RAM ยังไง</h2>
+          <ol class="steps">
+            <li>
+              <div class="title">พิมพ์</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>free -h</pre></div>
+            </li>
+            <li><div class="title">ดูคอลัมน์ available ไม่ใช่แค่ free</div><p>available คือของที่ใช้ได้จริง</p></li>
+            <li><div class="title">ถ้า available เหลือไม่กี่ GB ขณะโมเดลเปิดอยู่ นั่นปกติ</div></li>
+            <li><div class="title">อย่าไปลบไฟล์โมเดลเพื่อเคลียร์ RAM</div><p>ไฟล์โมเดลอยู่บนดิสก์ การปิดโปรเซสต่างหากที่คืน RAM</p></li>
+          </ol>
+          <div class="bar">
+            <div class="label"><span>ตอน Qwen 35B สูตร 40%</span><span>used ~61 · available ~59</span></div>
+            <div class="track"><div class="fill" style="width:50%"></div></div>
+            <div class="legend">ดู available ถ้าเหลือหลายสิบ GB แปลว่าสูตร 40% ทำงาน</div>
+          </div>
+          <figure class="shot">
+            <img src="assets/shots/term-free-now.png" alt="free -h ตอน Qwen 35B">
+            <figcaption>ผลจริงตอน Qwen 35B สูตร 40%: used 61Gi available 59Gi</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/term-free.png" alt="free -h ตอนโมเดลกินสูง">
+            <figcaption>ภาพตอนโมเดลจองสูง ใช้เทียบว่า available หดแค่ไหน</figcaption>
+          </figure>
+        </section>
+
+        <section id="dont">
+          <h2>สิ่งที่ห้ามทำ</h2>
+          <ul>
+            <li>ห้ามเปิดโมเดลแชทสองตัวพร้อมกัน</li>
+            <li>ห้ามลบโฟลเดอร์ <code>~/.cache/huggingface</code> ถ้ายังอยากใช้โมเดลเหล่านี้</li>
+            <li>ห้ามลบ <code>~/ai/open-webui</code> ถ้ายังอยากใช้คำสั่ง start-*</li>
+            <li>ห้ามใช้ <code>docker compose down -v</code> กับ Open WebUI ถ้ายังอยากเก็บประวัติแชท</li>
+            <li>ห้ามใส่ Hugging Face token ลงในคำสั่งที่เทอร์มินัลจะบันทึกประวัติ</li>
+            <li>ห้ามรีสตาร์ทเครื่องเพื่อคืน RAM ถ้าแค่ต้องการพัก ให้ใช้ <code>stop-model</code></li>
+            <li>ห้ามกด Run ใน ComfyUI ตอนโหนดยังกรอบแดง แล้วคิดว่าเครื่องพัง</li>
+          </ul>
+        </section>
+
+        <div class="pager">
+          <a href="comfy.html"><small>กลับ</small>สร้างภาพ</a>
+          <a href="fix.html"><small>ถัดไป</small>แก้ปัญหา</a>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="assets/app.js"></script>
+</body>
+</html>

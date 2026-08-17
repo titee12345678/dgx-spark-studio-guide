@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>สร้างภาพและวิดีโอ · คู่มือ DGX Spark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"></header>
+    <div class="page">
+      <aside class="side">
+        <input class="search" id="q" type="search" placeholder="ค้นในหน้าภาพและวิดีโอ...">
+        <nav class="nav">
+          <div class="group">รู้จักระบบ</div>
+          <a href="#what">ภาพกับวิดีโอต่างจากแชทยังไง</a>
+          <a href="#now">สถานะบนเครื่องนี้</a>
+          <a href="#open">ขั้นที่ 1 เปิดโปรแกรม</a>
+          <a href="#enter">ขั้นที่ 2 เข้าเว็บ</a>
+          <a href="#ui">ขั้นที่ 3 รู้จักหน้าจอ</a>
+          <a href="#wire">ขั้นที่ 4 ต่อโหนด</a>
+          <div class="group">ไฟล์และงานแรก</div>
+          <a href="#place">ขั้นที่ 5 วางโมเดล</a>
+          <a href="#first">ขั้นที่ 6 งานแรก Z-Image</a>
+          <div class="group">สร้างภาพ</div>
+          <a href="#t2i">ขั้นที่ 7 ข้อความเป็นภาพ</a>
+          <a href="#i2i">ขั้นที่ 8 แก้ภาพเดิม</a>
+          <div class="group">สร้างวิดีโอ</div>
+          <a href="#video">ขั้นที่ 9 ข้อความเป็นวิดีโอ</a>
+          <a href="#i2v">ขั้นที่ 10 ภาพเป็นวิดีโอ</a>
+          <a href="#upscale">ขั้นที่ 11 อัปสเกลและเพิ่มเฟรม</a>
+          <div class="group">ดูแล</div>
+          <a href="#save">บันทึกผลและกราฟ</a>
+          <a href="#nodes">โหนดที่มีแล้ว</a>
+          <a href="#catalog">ตารางโมเดลที่แนะนำ</a>
+          <a href="#ram">RAM กับโมเดลแชท</a>
+          <a href="#fix">ปัญหาที่เจอบนเครื่องนี้</a>
+          <a href="#dont">สิ่งที่ห้ามทำ</a>
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="hero">
+          <div class="kicker">หมวดภาพและวิดีโอ · พอร์ต 8188</div>
+          <h1>ใช้ ComfyUI สร้างภาพและวิดีโอ</h1>
+          <p class="lede">คนละระบบกับ Open WebUI และ Hermes ไม่ใช้คำสั่ง start-qwen35 หน้านี้สอนจากหน้าจอจริงบนเครื่องนี้ ทั้งภาพนิ่งและคลิปสั้น</p>
+        </header>
+
+        <section id="what">
+          <h2>ภาพกับวิดีโอต่างจากแชทยังไง</h2>
+          <p>แชทพิมพ์ข้อความแล้วได้ข้อความ ComfyUI ต่อกล่องงานเป็นกราฟ แล้วกด Run เพื่อได้ไฟล์รูปหรือคลิป</p>
+          <div class="viz cols-3">
+            <article class="viz-card">
+              <span class="k">แชท :18473</span>
+              <h3>Open WebUI</h3>
+              <p>คุยกับโมเดลภาษา ไม่สร้างไฟล์ภาพ</p>
+            </article>
+            <article class="viz-card">
+              <span class="k">ภาพนิ่ง</span>
+              <h3>Text / Image</h3>
+              <p>ข้อความเป็นรูป หรือแก้รูปเดิม ได้ไฟล์ใน output</p>
+            </article>
+            <article class="viz-card">
+              <span class="k">วิดีโอ</span>
+              <h3>Text / Image to Video</h3>
+              <p>ได้คลิปสั้น ใช้ RAM มากกว่าภาพมาก</p>
+            </article>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>สิ่งที่ต้องการ</th><th>อยู่ที่ไหนบนเครื่องนี้</th></tr></thead>
+              <tbody>
+                <tr><td>โมเดลภาพและวิดีโอ</td><td><code>~/ai/comfyui/models</code></td></tr>
+                <tr><td>รูปหรือคลิปที่เอาเข้าไปใช้</td><td><code>~/ai/comfyui/input</code></td></tr>
+                <tr><td>ผลที่สร้างได้</td><td><code>~/ai/comfyui/output</code></td></tr>
+                <tr><td>ไฟล์กราฟ .json</td><td><code>~/ai/comfyui/workflows</code></td></tr>
+                <tr><td>โหนดเสริม</td><td><code>~/ai/comfyui/custom_nodes</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout tip">ลบคอนเทนเนอร์แล้วสร้างใหม่ ไฟล์ในโฟลเดอร์เหล่านี้ยังอยู่ เพราะถูกเมาท์ออกมาข้างนอก</div>
+        </section>
+
+        <section id="now">
+          <h2>สถานะบนเครื่องนี้</h2>
+          <p>ตรวจจากระบบจริง วันที่ 17 สิงหาคม 2026</p>
+          <ul>
+            <li>คอนเทนเนอร์ <code>comfyui-dgx</code> เปิดอยู่ พอร์ต 8188 ตอบ HTTP 200</li>
+            <li>เวอร์ชัน ComfyUI <strong>0.33.1</strong> เห็น GPU <code>NVIDIA GB10</code></li>
+            <li>กราฟที่เปิดมาให้คือ <strong>Z-Image-Turbo</strong> ไม่ใช่ SD 1.5</li>
+            <li>โฟลเดอร์โมเดลภาพยังว่างทุกช่อง ยังสร้างภาพหรือวิดีโอจริงไม่ได้</li>
+            <li>โหนดวิดีโอมีแล้ว: Video Helper Suite, KJNodes, Frame Interpolation (RIFE)</li>
+          </ul>
+          <div class="callout warn">เว็บเปิดได้ ≠ พร้อมสร้าง ต้องมีไฟล์น้ำหนักในโฟลเดอร์โมเดลก่อน ขั้นสร้างภาพและวิดีโอด้านล่างจึงแบ่งเป็นสิ่งที่ทำได้ทันที กับสิ่งที่ทำได้หลังมีไฟล์</div>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-red-nodes.png" alt="โหนดโหลดโมเดลกรอบแดง">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              กรอบแดงรอบ Load Diffusion Model และ Load CLIP คือไฟล์ยังไม่มี ไม่ใช่เว็บพัง
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="open">
+          <h2>ขั้นที่ 1 เปิดโปรแกรม</h2>
+          <p>ทำบนเครื่อง DGX ผ่านเทอร์มินัล ไม่ใช่ในกรง Hermes</p>
+          <ol class="steps">
+            <li>
+              <div class="title">เปิดเทอร์มินัล</div>
+              <p>กด <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd></p>
+            </li>
+            <li>
+              <div class="title">ตรวจว่าเปิดอยู่หรือยัง</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker ps --filter name=comfyui-dgx</pre></div>
+              <p>ถ้า STATUS เป็น <code>Up ...</code> ไปขั้นที่ 2 ได้เลย</p>
+            </li>
+            <li>
+              <div class="title">ถ้ายังไม่เปิด ใช้สคริปต์ที่เตรียมไว้</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>~/ai/comfyui/scripts/start.sh</pre></div>
+              <p>คำสั่งนี้ปลุกคอนเทนเนอร์เดิม ถ้ายังไม่มีจะสร้างใหม่โดยไม่แตะโมเดลแชท</p>
+            </li>
+            <li>
+              <div class="title">ถ้าอยากดูว่าพร้อมหรือยัง</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker logs --tail 30 comfyui-dgx</pre></div>
+              <p>ต้องเห็นข้อความประมาณ <code>To see the GUI go to: http://0.0.0.0:8188</code></p>
+            </li>
+          </ol>
+          <div class="callout warn">ถ้าจะรันสร้างภาพใหญ่หรือวิดีโอ แนะนำให้ <code>stop-model</code> ก่อน เพราะเครื่องนี้ RAM รวมกับ GPU ก้อนเดียว</div>
+        </section>
+
+        <section id="enter">
+          <h2>ขั้นที่ 2 เข้าเว็บ</h2>
+          <ol class="steps">
+            <li><div class="title">เปิดแท็บเบราว์เซอร์ใหม่</div></li>
+            <li>
+              <div class="title">พิมพ์ที่อยู่แล้วกด Enter</div>
+              <p>บนเครื่องนี้: <a href="http://127.0.0.1:8188">http://127.0.0.1:8188</a></p>
+              <p>จากเครื่องอื่นในบ้าน: <a href="http://192.168.178.98:8188">http://192.168.178.98:8188</a></p>
+            </li>
+            <li>
+              <div class="title">ตรวจว่าหน้าขึ้นจริง</div>
+              <p>ต้องเห็นผืนผ้าใบสีเข้ม แถบซ้ายมี Assets / Nodes / Models / Workflows / Templates และมุมบนมีปุ่มฟ้า <strong>Run</strong></p>
+            </li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-runbar.png" alt="แถบ Manager และปุ่ม Run">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              มุมบนขวาต้องมีปุ่มฟ้า Run และคำว่า Manager ถ้าเห็นแถบนี้ แปลว่าเข้าเว็บถูกแล้ว
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="ui">
+          <h2>ขั้นที่ 3 รู้จักหน้าจอ</h2>
+          <p>ใช้เวลาจำปุ่มเหล่านี้ก่อนลงมือ ภาพด้านล่างคือหน้าจอจริง</p>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-rail.png" alt="แถบเมนูซ้ายของ ComfyUI">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              แถบซ้ายสุด: Assets ดูผล · Nodes กล่องงาน · Models คลังไฟล์ · Templates กราฟสำเร็จรูป
+            </figcaption>
+          </figure>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ส่วนของหน้าจอ</th><th>ทำอะไร</th><th>ใช้ตอนไหน</th></tr></thead>
+              <tbody>
+                <tr><td>Assets</td><td>ไฟล์ที่สร้างแล้ว</td><td>ดูผลหลังกด Run</td></tr>
+                <tr><td>Nodes</td><td>กล่องงานทั้งหมด ลากมาวางได้</td><td>สร้างกราฟเอง</td></tr>
+                <tr><td>Models</td><td>คลังไฟล์ใน <code>~/ai/comfyui/models</code></td><td>ตรวจว่าวางโมเดลถูกช่อง</td></tr>
+                <tr><td>Workflows</td><td>กราฟที่เซฟไว้</td><td>เปิดงานเดิม</td></tr>
+                <tr><td>Templates</td><td>กราฟตัวอย่าง Image / Video / Audio</td><td>เริ่มงานใหม่โดยไม่ต่อเอง</td></tr>
+                <tr><td>Manager</td><td>ติดตั้งโหนดหรือโมเดลเพิ่ม</td><td>เมื่อกราฟขอโหนดที่ยังไม่มี</td></tr>
+                <tr><td>Run</td><td>เริ่มสร้างตามกราฟ</td><td>เมื่อไม่มีกรอบแดง</td></tr>
+                <tr><td>0 active</td><td>จำนวนงานในคิว</td><td>ดูว่ารันอยู่หรือเสร็จแล้ว</td></tr>
+                <tr><td>กรอบแดง</td><td>โหนดนั้นยังไม่มีไฟล์</td><td>ห้ามกด Run</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>ท่าทางพื้นฐาน</h3>
+          <ol class="steps">
+            <li><div class="title">เลื่อนผืนผ้าใบ</div><p>กด <kbd>Space</kbd> ค้างแล้วลากเมาส์</p></li>
+            <li><div class="title">ซูม</div><p>หมุนลูกกลิ้งเมาส์</p></li>
+            <li><div class="title">ค้นหาโหนด</div><p>ดับเบิลคลิกพื้นที่ว่าง แล้วพิมพ์ชื่อ เช่น <code>KSampler</code></p></li>
+            <li><div class="title">ลบโหนดหรือเส้น</div><p>คลิกแล้วกด <kbd>Delete</kbd></p></li>
+            <li><div class="title">บันทึกกราฟ</div><p><kbd>Ctrl</kbd> + <kbd>S</kbd></p></li>
+            <li><div class="title">รันงาน</div><p>ปุ่มฟ้า Run หรือ <kbd>Ctrl</kbd> + <kbd>Enter</kbd></p></li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-add-node.png" alt="ช่อง Add a node">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              ดับเบิลคลิกพื้นที่ว่างบนกราฟ จะได้ช่องค้นหาโหนด พิมพ์ชื่อแล้วเลือก
+            </figcaption>
+          </figure>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-node-list.png" alt="รายการหมวดโหนด">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              คลิก Nodes ทางซ้าย จะเห็นหมวด model / image / video และ KJNodes
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="wire">
+          <h2>ขั้นที่ 4 ต่อโหนด</h2>
+          <p>กราฟทำงานได้เมื่อต่อขั้วถูกสี จุดกลมขอบโหนดคือขั้ว ลากจากจุดออกไปจุดเข้าสีเดียวกัน</p>
+          <div class="viz cols-2">
+            <article class="viz-card"><span class="k">ม่วง</span><h3>MODEL</h3><p>Load Diffusion Model ไปเข้า KSampler</p></article>
+            <article class="viz-card"><span class="k">เหลือง</span><h3>CLIP / ข้อความ</h3><p>Load CLIP ไปเข้าพรอมต์บวกและลบ</p></article>
+            <article class="viz-card"><span class="k">ชมพู</span><h3>LATENT</h3><p>ภาพว่าง ไปเข้า KSampler แล้วออกไปถอดรหัส</p></article>
+            <article class="viz-card"><span class="k">ฟ้า</span><h3>IMAGE</h3><p>VAE Decode ไปเข้า Save Image หรือโหนดวิดีโอ</p></article>
+          </div>
+          <ol class="steps">
+            <li><div class="title">เลื่อนเมาส์ไปที่จุดกลมจนเป็นวงสว่าง</div></li>
+            <li><div class="title">กดค้างแล้วลากไปจุดสีเดียวกันของโหนดปลายทาง</div></li>
+            <li><div class="title">ถ้าต่อผิดสี จะต่อไม่ติด หรือโหนดปลายทางแดง</div></li>
+            <li><div class="title">คลิกเส้นแล้วกด Delete เพื่อถอดสาย</div></li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-ksampler-node.png" alt="โหนด KSampler และสายสี">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              KSampler รับสายม่วงจากโมเดล สายเหลืองจากพรอมต์ สายชมพูจากขนาดภาพ แล้วส่งต่อไปถอดเป็นรูป
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="place">
+          <h2>ขั้นที่ 5 วางโมเดล</h2>
+          <p>ComfyUI ไม่ได้ดาวน์โหลดโมเดลใหญ่ตอนติดตั้ง ตอนนี้ทุกโฟลเดอร์ใน <code>~/ai/comfyui/models</code> ยังว่าง</p>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-model-folders.png" alt="รายการโฟลเดอร์โมเดล">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              คลิก Models แล้ววางไฟล์ลงโฟลเดอร์ที่ชื่อตรงชนิด เช่น diffusion_models, text_encoders, vae
+            </figcaption>
+          </figure>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ชนิดไฟล์</th><th>วางที่</th><th>ใช้กับงาน</th></tr></thead>
+              <tbody>
+                <tr><td>Checkpoint แบบเก่า เช่น SD 1.5</td><td><code>models/checkpoints</code></td><td>ภาพทดสอบเล็ก</td></tr>
+                <tr><td>Diffusion ใหม่ เช่น Z-Image, FLUX, Wan</td><td><code>models/diffusion_models</code></td><td>กราฟเริ่มต้นและวิดีโอ</td></tr>
+                <tr><td>Text encoder / CLIP / T5 / Qwen</td><td><code>models/text_encoders</code> หรือ <code>clip</code></td><td>อ่านพรอมต์</td></tr>
+                <tr><td>VAE</td><td><code>models/vae</code></td><td>ถอด latent เป็นรูป</td></tr>
+                <tr><td>อัปสเกล</td><td><code>models/upscale_models</code></td><td>ขยายภาพทีหลัง</td></tr>
+                <tr><td>น้ำหนัก RIFE</td><td>ตามที่โหนด Frame Interpolation บอก</td><td>เพิ่มเฟรมวิดีโอ</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <ol class="steps">
+            <li>
+              <div class="title">เปิดโฟลเดอร์โมเดล</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>xdg-open ~/ai/comfyui/models</pre></div>
+            </li>
+            <li><div class="title">คัดลอกไฟล์ .safetensors ลงโฟลเดอร์ที่ถูกชนิด</div></li>
+            <li><div class="title">กลับไปหน้าเว็บ รีเฟรชรายการในโหนด หรือรีสตาร์ท</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker restart comfyui-dgx</pre></div>
+            </li>
+            <li><div class="title">กรอบแดงต้องหาย ถ้ายังแดง ให้คลิกช่องชื่อไฟล์ในโหนดแล้วเลือกไฟล์ที่เพิ่งวาง</div></li>
+          </ol>
+          <div class="callout bad">อย่าพิมพ์ Hugging Face token ลงคำสั่งที่เทอร์มินัลจะบันทึกประวัติ ถ้าโมเดลเป็นแบบ gated ให้รัน <code>docker exec -it comfyui-dgx hf auth login</code> แล้ววาง token ในช่องที่ถาม</div>
+        </section>
+
+        <section id="first">
+          <h2>ขั้นที่ 6 งานแรกจากกราฟที่มีอยู่</h2>
+          <p>เครื่องนี้เปิดมาพร้อมกราฟ <strong>Z-Image-Turbo</strong> ไม่ต้องสร้างกราฟใหม่สำหรับงานแรก</p>
+          <ol class="steps">
+            <li>
+              <div class="title">ดูโหนดกรอบแดง</div>
+              <p>Load Diffusion Model ต้องการ <code>z_image_turbo_bf16.safetensors</code> ประมาณ 11.46 GB</p>
+              <p>Load CLIP ต้องการ <code>qwen_3_4b.safetensors</code> ประมาณ 7.49 GB</p>
+            </li>
+            <li>
+              <div class="title">เปิดรายการที่ขาด</div>
+              <p>มุมขวาบนมีป้าย errors ให้กด <strong>View details</strong> แผงขวาจะขึ้น Missing Models</p>
+            </li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-missing-panel.png" alt="แผง Missing Models ด้านขวา">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              กด View details แล้วดูแผงขวา ขาด qwen_3_4b ประมาณ 7.5 GB และ z_image_turbo ประมาณ 11.5 GB
+            </figcaption>
+          </figure>
+          <ol class="steps" start="3">
+            <li>
+              <div class="title">ดาวน์โหลดเมื่อเครื่องว่าง</div>
+              <p>กด Download ทีละไฟล์ อย่ากด Download all ตอนโมเดลแชทยังกิน RAM</p>
+            </li>
+            <li>
+              <div class="title">รอจนกรอบแดงหาย</div>
+              <p>ไฟล์ตกที่ <code>diffusion_models</code> และ <code>text_encoders</code> แล้วรีเฟรชโหนด</p>
+            </li>
+            <li>
+              <div class="title">แก้ข้อความในโหนด CLIP ช่องบวก</div>
+              <p>คลิกโหนด CLIP Text Encode อันบน แล้วพิมพ์ใหม่ที่แผงขวาช่อง text ช่องล่างเป็นพรอมต์ลบ</p>
+            </li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-prompt-panel.png" alt="แผงข้อความ CLIP Text Encode">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              คลิกโหนด CLIP Text Encode แล้วพิมพ์ใหม่ที่ช่อง text ด้านขวา ไม่ต้องแก้ทั้งกราฟ
+            </figcaption>
+          </figure>
+          <ol class="steps" start="6">
+            <li>
+              <div class="title">ตั้งค่างานทดสอบให้เล็ก</div>
+              <p>โหนด EmptySD3LatentImage ตอนนี้ 1024×1024 งานแรกให้ลดเป็น 768×768</p>
+              <p>KSampler ของกราฟนี้ใช้ steps 8, cfg 1.0, sampler <code>res_multistep</code> เหมาะกับ Z-Image-Turbo อยู่แล้ว อย่าเพิ่ม steps มากในรอบแรก</p>
+            </li>
+            <li>
+              <div class="title">กด Run</div>
+              <p>ปุ่มฟ้ามุมบน หรือ <kbd>Ctrl</kbd> + <kbd>Enter</kbd> ตัวเลข 0 active จะขยับขึ้นขณะทำงาน</p>
+            </li>
+            <li>
+              <div class="title">ดูผล</div>
+              <p>รูปโชว์ที่โหนด Save Image และไปอยู่ที่ <code>~/ai/comfyui/output</code> ในเว็บดูได้ที่ Assets</p>
+            </li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-size-panel.png" alt="แผงตั้งความกว้างสูงของภาพ">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              คลิก EmptySD3LatentImage แล้วลด width/height ที่แผงขวา งานแรกใช้ 768 ไม่ใช่ 1024
+            </figcaption>
+          </figure>
+          <figure class="shot slim">
+            <img src="assets/shots/focus/comfy-runbar.png" alt="ปุ่ม Run">
+            <figcaption>กดปุ่มฟ้า Run มุมบนขวา ปุ่มแดงคือยกเลิก ห้ามกดตอนยังมีกรอบแดง</figcaption>
+          </figure>
+        </section>
+
+        <section id="t2i">
+          <h2>ขั้นที่ 7 สร้างภาพจากข้อความ</h2>
+          <p>ใช้เมื่ออยากเริ่มจากเทมเพลต ไม่ใช้กราฟที่เปิดมา ถ้ายังไม่มีโมเดล ทำได้ถึงแค่เปิดเทมเพลต แล้วโหนดโหลดจะแดง</p>
+          <ol class="steps">
+            <li>
+              <div class="title">คลิก Templates ทางซ้าย</div>
+              <p>จะได้หน้าต่าง All Templates</p>
+            </li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-tpl-zimage.png" alt="การ์ดเทมเพลต Z-Image-Turbo">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              Templates → Image แล้วเลือกการ์ด Z-Image-Turbo: Text to Image
+            </figcaption>
+          </figure>
+          <ol class="steps" start="2">
+            <li><div class="title">คลิก Image ใต้ Generation Type</div></li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-tpl-image.png" alt="รายการเทมเพลตหมวด Image">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              หมวด Image มีทั้งสร้างภาพและแก้ภาพ เช่น Qwen Image Edit เปิดทีละใบเมื่อไฟล์ครบ
+            </figcaption>
+          </figure>
+          <ol class="steps" start="3">
+            <li>
+              <div class="title">เปิดการ์ดสร้างภาพ</div>
+              <p>คลิก <strong>Z-Image-Turbo: Text to Image</strong> หรือเทมเพลตภาพอื่นที่ไฟล์มีครบ</p>
+            </li>
+            <li>
+              <div class="title">เลือกไฟล์ในโหนดโหลด</div>
+              <p>SD 1.5 ใช้ Load Checkpoint ใน <code>checkpoints</code> ส่วน Z-Image / FLUX / Wan ใช้ Load Diffusion Model ใน <code>diffusion_models</code></p>
+            </li>
+            <li>
+              <div class="title">เขียนพรอมต์ช่องบวก</div>
+              <div class="prewrap"><pre>a ceramic coffee cup on a teak table, morning window light, photorealistic, 35mm</pre></div>
+              <p>ช่องลบใส่สิ่งที่ไม่ต้องการ เช่น <code>blurry, watermark, extra fingers</code></p>
+            </li>
+            <li>
+              <div class="title">ตั้งค่างานทดสอบให้เล็ก</div>
+              <ul>
+                <li>ความกว้าง/สูง: 512 หรือ 768 ก่อน</li>
+                <li>Steps: ตามโมเดล เช่น Z-Image-Turbo ประมาณ 8, SD 1.5 ประมาณ 20</li>
+                <li>Batch size: 1</li>
+              </ul>
+            </li>
+            <li>
+              <div class="title">กด Run แล้วรอโหนด Save Image โชว์รูป</div>
+            </li>
+          </ol>
+        </section>
+
+        <section id="i2i">
+          <h2>ขั้นที่ 8 แก้ภาพเดิม</h2>
+          <p>ใช้เมื่อมีรูปต้นทางแล้วอยากเปลี่ยนบางอย่าง ไม่ใช่สร้างใหม่ทั้งใบ</p>
+          <ol class="steps">
+            <li>
+              <div class="title">วางรูปลงเครื่อง</div>
+              <p>คัดลอก <code>.png</code> หรือ <code>.jpg</code> ไปที่ <code>~/ai/comfyui/input</code></p>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>xdg-open ~/ai/comfyui/input</pre></div>
+            </li>
+            <li>
+              <div class="title">เปิดเทมเพลตแก้ภาพ</div>
+              <p>Templates → Image → <strong>Qwen Image Edit 2511</strong> เมื่อมีไฟล์ของกราฟนั้น</p>
+            </li>
+            <li>
+              <div class="title">ในโหนด Load Image เลือกไฟล์ที่เพิ่งวาง</div>
+            </li>
+            <li>
+              <div class="title">เขียนสิ่งที่จะเปลี่ยน ให้เฉพาะเจาะจง</div>
+              <p>ตัวอย่าง: เปลี่ยนพื้นหลังเป็นห้องครัว แต่คงถ้วยกาแฟเดิม</p>
+            </li>
+            <li>
+              <div class="title">ตั้งความแรงของการแก้ให้กลาง ๆ</div>
+              <p>ค่า denoise ยิ่งสูง ยิ่งทิ้งต้นฉบับมาก รอบแรกอย่าขยับสุด</p>
+            </li>
+            <li>
+              <div class="title">รันครั้งละหนึ่งรูป แล้วดูใน output</div>
+            </li>
+          </ol>
+          <div class="callout tip">อย่าเพิ่มความละเอียดพร้อมกับแก้ภาพในรอบแรก ให้แก้ให้ถูกก่อน แล้วค่อยไปขั้นอัปสเกล</div>
+        </section>
+
+        <section id="video">
+          <h2>ขั้นที่ 9 สร้างวิดีโอจากข้อความ</h2>
+          <p>วิดีโอคนละกราฟกับภาพนิ่ง ใช้เวลานานกว่า และกินหน่วยความจำมากกว่ามาก</p>
+          <div class="callout warn">เริ่มสั้นเสมอ: 3–5 วินาที ความละเอียดไม่เกิน 720p จำนวนชุด 1 งาน ห้ามเริ่มด้วยคลิปยาวหรือ 1080p</div>
+          <ol class="steps">
+            <li>
+              <div class="title">อย่าเปิดเทมเพลตวิดีโอก่อนมีโมเดลวิดีโอ</div>
+              <p>ตัวที่เหมาะเริ่มต้นคือ <strong>Wan2.2 TI2V-5B</strong> ทำได้ทั้งข้อความเป็นวิดีโอและภาพเป็นวิดีโอ ดูขนาดในตารางโมเดลด้านล่าง</p>
+            </li>
+            <li>
+              <div class="title">คลิก Templates แล้วเลือก Video</div>
+            </li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-tpl-video-tab.png" alt="แท็บ Video ใน Templates">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              คลิก Video ทางซ้ายของหน้า Templates ก่อน แล้วค่อยเลือกการ์ดที่ตรงโมเดลที่มี
+            </figcaption>
+          </figure>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-tpl-video.png" alt="การ์ดเทมเพลตวิดีโอ">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              มีทั้ง Image to Video และ Text to Video อย่าเปิดทุกใบ เลือกอันที่ไฟล์โมเดลมีจริง
+            </figcaption>
+          </figure>
+          <ol class="steps" start="3">
+            <li>
+              <div class="title">เปิดการ์ด Text to Video ที่ตรงกับโมเดลที่มี</div>
+              <p>ใช้ไฟล์ UI เท่านั้น อย่าเปิดไฟล์นามสกุล <code>.api.json</code></p>
+            </li>
+            <li>
+              <div class="title">เขียนพรอมต์แบบมีกล้องและการเคลื่อนไหว</div>
+              <div class="prewrap"><pre>slow drone shot over a misty teak forest at sunrise, cinematic, gentle camera push-in</pre></div>
+              <p>ถ้าระบุแค่วัตถุโดยไม่บอกกล้อง คลิปจะนิ่งเหมือนสไลด์</p>
+            </li>
+            <li>
+              <div class="title">ตั้งเฟรมให้สั้น</div>
+              <p>เป้าหมายแรกประมาณ 49–81 เฟรม ที่ 16–24 fps จะได้คลิปราว 3–5 วินาที</p>
+            </li>
+            <li>
+              <div class="title">ปิดโมเดลแชทก่อนกด Run</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>stop-model</pre></div>
+            </li>
+            <li>
+              <div class="title">กด Run แล้วรอ นานกว่าภาพมาก</div>
+              <p>ผลมักอยู่ที่ <code>~/ai/comfyui/output</code> บางกราฟได้ <code>.webp</code> ก่อน แปลงเป็น mp4 ได้ด้วย</p>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker exec comfyui-dgx ffmpeg -y -i /opt/ComfyUI/output/ชื่อไฟล์.webp /opt/ComfyUI/output/ชื่อไฟล์.mp4</pre></div>
+            </li>
+          </ol>
+          <div class="callout bad">LTX-2.3 แบบมีเสียงยังไม่พร้อมใน image นี้ เพราะ torchaudio ถูก stub ไว้บน ARM64 อย่าเริ่มจาก LTX ถ้าต้องการเสียงในคลิป</div>
+        </section>
+
+        <section id="i2v">
+          <h2>ขั้นที่ 10 ทำภาพนิ่งให้เป็นวิดีโอ</h2>
+          <p>ใช้เมื่อมีรูปที่ชอบแล้วอยากให้ขยับ ไม่ใช่สร้างคลิปจากข้อความล้วน</p>
+          <ol class="steps">
+            <li>
+              <div class="title">วางรูปนิ่งใน input</div>
+              <p>ใช้รูปจากขั้นสร้างภาพ หรือรูปถ่ายของคุณเอง</p>
+            </li>
+            <li>
+              <div class="title">เปิด Templates → Video → Image to Video</div>
+              <p>เลือกกราฟที่ตรงกับโมเดลที่มี เช่น Wan เมื่อไฟล์ครบ</p>
+            </li>
+            <li>
+              <div class="title">ในโหนด Load Image เลือกไฟล์นั้น</div>
+            </li>
+            <li>
+              <div class="title">อธิบายการเคลื่อนไหว ไม่ใช่แค่วัตถุ</div>
+              <p>เขียนว่ากล้องทำอะไรและวัตถุขยับอย่างไร เช่น กล้องค่อย ๆ เข้าใกล้ ไอน้ำลอยขึ้น ใบไม้สั่นเล็กน้อย</p>
+            </li>
+            <li>
+              <div class="title">ตั้งเฟรมสั้นเหมือนขั้นที่ 9 แล้วกด Run</div>
+            </li>
+          </ol>
+          <div class="callout tip">รูปต้นทางคมและองค์ประกอบเรียบจะขยับสวยกว่าภาพวุ่นวาย ถ้าผลเพี้ยน ให้ลดความยาวและลดความละเอียดก่อนเปลี่ยนโมเดล</div>
+        </section>
+
+        <section id="upscale">
+          <h2>ขั้นที่ 11 อัปสเกลภาพและเพิ่มเฟรมวิดีโอ</h2>
+          <p>ทำทีหลังเมื่อมีไฟล์ผลแล้ว อย่าขยายพร้อมกับสร้างครั้งแรก</p>
+          <h3>ขยายภาพ</h3>
+          <ol class="steps">
+            <li>วางโมเดล เช่น RealESRGAN x4plus ใน <code>~/ai/comfyui/models/upscale_models</code></li>
+            <li>ดับเบิลคลิกผืนผ้าใบ เพิ่มโหนด Load Image, Upscale Model Loader, Image Upscale With Model, Save Image</li>
+            <li>ลากรูปเข้าโหนดอัปสเกล แล้วต่อไป Save Image</li>
+            <li>เริ่มจากภาพไม่ใหญ่เกินไป เพราะขยาย 4 เท่ากินหน่วยความจำเร็ว</li>
+          </ol>
+          <h3>เพิ่มเฟรมด้วย RIFE</h3>
+          <p>โหนด <strong>RIFE VFI</strong> ติดตั้งแล้ว แต่ยังต้องมีไฟล์น้ำหนัก RIFE</p>
+          <ol class="steps">
+            <li>โหลดวิดีโอด้วยโหนดของ Video Helper Suite</li>
+            <li>ต่อเข้า RIFE VFI</li>
+            <li>ตั้งตัวคูณเฟรมเป็น 2 ก่อน อย่ากระโดดไป 4 หรือ 8 ในรอบแรก</li>
+            <li>เซฟออกด้วย Video Combine เป็น mp4</li>
+          </ol>
+        </section>
+
+        <section id="save">
+          <h2>บันทึกผลและกราฟ</h2>
+          <ol class="steps">
+            <li>
+              <div class="title">หาไฟล์ที่สร้างได้</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>ls -lt ~/ai/comfyui/output | head
+xdg-open ~/ai/comfyui/output</pre></div>
+            </li>
+            <li>
+              <div class="title">ดูในเว็บที่แผง Assets</div>
+            </li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-assets-empty.png" alt="แผง Assets ยังไม่มีไฟล์">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              หลังสร้างสำเร็จ ไฟล์จะโผล่ที่ Assets ตอนนี้ยังว่างเพราะยังไม่มีโมเดล
+            </figcaption>
+          </figure>
+          <ol class="steps" start="3">
+            <li>
+              <div class="title">บันทึกกราฟที่ใช้ได้แล้ว</div>
+              <p>กด <kbd>Ctrl</kbd> + <kbd>S</kbd> หรือเมนู Graph แล้ว Save ตั้งชื่อให้อ่านรู้เรื่อง เช่น <code>01_text_to_image.json</code> <code>03_image_to_video.json</code></p>
+              <p>ไฟล์จะโผล่ใน <code>~/ai/comfyui/workflows</code></p>
+            </li>
+            <li>
+              <div class="title">เปิดกราฟเดิมอีกครั้งจากแผง Workflows หรือลากไฟล์ JSON ลงหน้าเว็บ</div>
+            </li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-graph-menu.png" alt="เมนู Graph Save">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              คลิกคำว่า Graph มุมบนซ้าย แล้วเลือก Save ตั้งชื่อให้อ่านรู้เรื่อง
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="nodes">
+          <h2>โหนดที่มีแล้วบนเครื่องนี้</h2>
+          <p>เก็บที่ <code>~/ai/comfyui/custom_nodes</code> ไม่ต้องลงซ้ำ</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ชื่อ</th><th>หน้าที่</th><th>ใช้ตอนไหน</th></tr></thead>
+              <tbody>
+                <tr><td>ComfyUI-Manager</td><td>ติดตั้งโหนดและโมเดล</td><td>กราฟขอโหนดที่ยังไม่มี</td></tr>
+                <tr><td>ComfyUI-VideoHelperSuite</td><td>โหลด บันทึก รวมวิดีโอ</td><td>ทุกงานคลิป</td></tr>
+                <tr><td>ComfyUI-KJNodes</td><td>โหนดช่วยวิดีโอและกราฟ</td><td>เทมเพลตวิดีโอบางใบ</td></tr>
+                <tr><td>ComfyUI-Frame-Interpolation</td><td>RIFE เพิ่มเฟรม</td><td>หลังมีคลิปสั้นแล้ว</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-manager-modal.png" alt="หน้าต่าง ComfyUI Manager">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              ปุ่ม Manager มุมบน ใช้ติดตั้งเฉพาะโหนดที่กราฟขอ อย่ากด Install ทั้งรายการ
+            </figcaption>
+          </figure>
+        </section>
+
+        <section id="catalog">
+          <h2>ตารางโมเดลที่แนะนำ</h2>
+          <p>ยังไม่ต้องโหลดทั้งหมด เลือกทีละชุด ไฟล์ที่ใหญ่กว่า 20 GB ต่อไฟล์ให้หยุดถามก่อน</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>โมเดล</th><th>ใช้ทำอะไร</th><th>ขนาดโดยประมาณ</th><th>ควรเริ่มเมื่อไร</th></tr></thead>
+              <tbody>
+                <tr><td>Z-Image-Turbo + Qwen3 4B</td><td>กราฟเริ่มต้น Text-to-Image เร็ว</td><td>รวมราว 19 GB</td><td>งานแรก กด Download ใน Missing Models</td></tr>
+                <tr><td>SD 1.5 fp16</td><td>ทดสอบระบบด้วยภาพเล็ก</td><td>ประมาณ 2 GB</td><td>ถ้าไม่อยากใช้ Z-Image</td></tr>
+                <tr><td>Qwen-Image-Edit 2511</td><td>แก้ภาพด้วยข้อความ</td><td>ราว 10–20 GB</td><td>หลังสร้างภาพได้แล้ว</td></tr>
+                <tr><td>Wan2.2 TI2V-5B</td><td>ข้อความเป็นวิดีโอ และภาพเป็นวิดีโอ 720p</td><td>มัก 8–15 GB รวม VAE/T5</td><td>หลังภาพนิ่งใช้งานได้</td></tr>
+                <tr><td>RealESRGAN x4plus</td><td>อัปสเกลภาพ</td><td>ประมาณ 64 MB</td><td>เมื่อมีรูปแล้วอยากขยาย</td></tr>
+                <tr><td>RIFE 4.25+</td><td>เพิ่มเฟรมวิดีโอ</td><td>สิบถึงร้อย MB</td><td>เมื่อมีคลิปสั้นแล้ว</td></tr>
+                <tr><td>FLUX.2 / LTX-2.3 มีเสียง</td><td>คุณภาพสูง หรือวิดีโอมีเสียง</td><td>มักเกิน 20 GB</td><td>ทีหลัง LTX ยังไม่พร้อมใน image นี้</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="ram">
+          <h2>RAM กับโมเดลแชท</h2>
+          <p>เครื่องนี้หน่วยความจำก้อนเดียว ทั้งแชท ทั้งภาพ ทั้งวิดีโอ</p>
+          <div class="bar">
+            <div class="label"><span>Qwen 35B เปิดอยู่</span><span>กันไว้ราว 40%</span></div>
+            <div class="track"><div class="fill" style="width:40%"></div></div>
+            <div class="legend">เว็บ Comfy ยังเปิดได้ แต่ห้ามกด Run วิดีโอทับ</div>
+          </div>
+          <ol class="steps">
+            <li>จะสร้างภาพใหญ่หรือวิดีโอ ให้รัน <code>stop-model</code> ก่อน</li>
+            <li>จะคุยแชทต่อหลังสร้างภาพ ให้รัน <code>start-qwen35</code> หรือ <code>start-nemotron</code> อีกครั้ง</li>
+            <li>อย่าเปิด Nemotron ค้างแล้วยิงกราฟ Wan พร้อมกัน</li>
+          </ol>
+        </section>
+
+        <section id="fix">
+          <h2>ปัญหาที่เจอบนเครื่องนี้</h2>
+          <h3>เข้า :8188 ไม่ได้</h3>
+          <ol class="steps">
+            <li>รัน <code>~/ai/comfyui/scripts/start.sh</code></li>
+            <li>รอ 10 วินาที แล้วรีเฟรช</li>
+            <li>ดู <code>docker logs --tail 40 comfyui-dgx</code> จนเจอบรรทัด GUI</li>
+          </ol>
+          <h3>กด Run แล้วขึ้น errors / กรอบแดง</h3>
+          <p>ยังไม่มีไฟล์โมเดล ไม่ใช่เครื่องพัง</p>
+          <ol class="steps">
+            <li>กด View details</li>
+            <li>อ่านชื่อไฟล์ที่ขาด</li>
+            <li>ดาวน์โหลดหรือวางไฟล์ลงโฟลเดอร์ที่ถูกชนิด</li>
+            <li>รีเฟรชโหนด แล้วค่อยกด Run ใหม่</li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/comfy-missing-panel.png" alt="แผงไฟล์ที่ขาด">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              แผง Errors ขวาบอกชื่อไฟล์ที่ขาด อย่ากด Download all ตอนโมเดลแชทยังเปิด
+            </figcaption>
+          </figure>
+          <h3>Manager บอกว่า PyTorch is not installed</h3>
+          <p>เป็นข้อความเท็จของ NGC PyTorch บนเครื่องนี้ ถ้า <code>curl -s http://127.0.0.1:8188/system_stats</code> ยังโชว์ NVIDIA GB10 ไม่ต้องติดตั้ง torch จาก PyPI</p>
+        </section>
+
+        <section id="dont">
+          <h2>สิ่งที่ห้ามทำ</h2>
+          <ul>
+            <li>ห้ามกด Run ตอนโหนดยังกรอบแดง แล้วคิดว่าเครื่องพัง</li>
+            <li>ห้ามเริ่มวิดีโอยาวหรือ 1080p เป็นงานแรก</li>
+            <li>ห้ามรันวิดีโอคู่โมเดลแชทใหญ่</li>
+            <li>ห้ามลบ <code>~/ai/comfyui/models</code> หรือ <code>output</code></li>
+            <li>ห้ามใช้ <code>docker system prune</code> เพื่อเคลียร์พื้นที่โดยไม่ดูชื่อ</li>
+            <li>ห้ามใส่ Hugging Face token ลงประวัติเทอร์มินัล</li>
+            <li>ห้ามไปยุ่งคอนเทนเนอร์โมเดลแชทเพื่อเปิด ComfyUI</li>
+            <li>ห้ามติดตั้ง torchaudio ในคอนเทนเนอร์นี้เพื่อบังคับ LTX ให้มีเสียง</li>
+          </ul>
+        </section>
+
+        <div class="pager">
+          <a href="models.html"><small>กลับ</small>โมเดลภาษา</a>
+          <a href="hermes.html"><small>ถัดไป</small>Hermes Agent</a>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="assets/app.js"></script>
+</body>
+</html>

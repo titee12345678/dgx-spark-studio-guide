@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>แชท Open WebUI · คู่มือ DGX Spark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"></header>
+    <div class="page">
+      <aside class="side">
+        <input class="search" id="q" type="search" placeholder="ค้นในหน้าแชท...">
+        <nav class="nav">
+          <div class="group">Open WebUI</div>
+          <a href="#open">ขั้นที่ 1 เปิดหน้าเว็บ</a>
+          <a href="#signup">ขั้นที่ 2 สมัครครั้งแรก</a>
+          <a href="#login">ขั้นที่ 3 เข้าสู่ระบบ</a>
+          <a href="#ui">ขั้นที่ 4 รู้จักหน้าจอ</a>
+          <a href="#pick">ขั้นที่ 5 เลือกโมเดล</a>
+          <a href="#send">ขั้นที่ 6 ส่งข้อความแรก</a>
+          <a href="#more">ขั้นที่ 7 แชทต่อ</a>
+          <a href="#controls">ขั้นที่ 8 ตั้งค่าคำตอบ</a>
+          <a href="#admin">ขั้นที่ 9 ตั้งค่าแอดมิน</a>
+          <a href="#conn">ขั้นที่ 10 ตรวจการต่อ API</a>
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="hero">
+          <div class="kicker">หมวดแชท · พอร์ต 18473</div>
+          <h1>ใช้ Open WebUI คุยกับโมเดล</h1>
+          <p class="lede">หน้านี้สอนเฉพาะหน้าเว็บแชท การเปิดโมเดลขึ้น RAM อยู่หมวดโมเดล คนละหน้าที่กัน</p>
+        </header>
+
+        <section id="open">
+          <h2>ขั้นที่ 1 เปิดหน้าเว็บแชท</h2>
+          <ol class="steps">
+            <li><div class="title">เปิดเบราว์เซอร์</div><p>บนเครื่อง DGX เปิด Firefox หรือ Chrome จากแถบแอป</p></li>
+            <li><div class="title">คลิกแถบที่อยู่ด้านบนสุด</div><p>ลบข้อความเก่าออกให้หมด</p></li>
+            <li>
+              <div class="title">พิมพ์ที่อยู่แล้วกด Enter</div>
+              <p>บนเครื่องนี้: <a href="http://127.0.0.1:18473">http://127.0.0.1:18473</a></p>
+              <p>จากเครื่องอื่นในบ้าน: <a href="http://192.168.178.98:18473">http://192.168.178.98:18473</a></p>
+            </li>
+            <li>
+              <div class="title">ดูว่าขึ้นหน้าไหน</div>
+              <ul>
+                <li>ขึ้น <strong>Sign in to Open WebUI</strong> = ไปขั้นที่ 3</li>
+                <li>ขึ้นช่องแชทตรงกลาง = ล็อกอินอยู่แล้ว ไปขั้นที่ 4</li>
+                <li>หน้าไม่ขึ้น = ไปหมวดแก้ปัญหา</li>
+              </ul>
+            </li>
+          </ol>
+        </section>
+
+        <section id="signup">
+          <h2>ขั้นที่ 2 สมัครบัญชีครั้งแรก</h2>
+          <p>บนเครื่องนี้สมัครแอดมินไปแล้ว หน้าสมัครถูกปิดอยู่ ไม่ต้องทำซ้ำ เก็บไว้เมื่อติดตั้งใหม่</p>
+          <ol class="steps">
+            <li><div class="title">เข้า <code>http://127.0.0.1:18473</code> ตอนยังไม่มีผู้ใช้</div><p>คนแรกที่ได้สมัครคือผู้ดูแลระบบ</p></li>
+            <li><div class="title">กรอกชื่อ อีเมล รหัสผ่าน</div><p>ใช้รหัสที่จำได้เอง อย่าแชร์ให้คนนอก</p></li>
+            <li><div class="title">กดสร้างบัญชี</div><p>หลังจากนี้คนอื่นสมัครเองไม่ได้จนกว่าแอดมินจะเปิด signup</p></li>
+          </ol>
+          <div class="callout tip">ตอนนี้ signup ปิดแล้ว ถ้าลืมรหัสผ่านต้องรีเซ็ตในเครื่อง</div>
+        </section>
+
+        <section id="login">
+          <h2>ขั้นที่ 3 เข้าสู่ระบบ</h2>
+          <figure class="shot">
+            <img src="assets/shots/webui-login.png" alt="หน้า Sign in to Open WebUI">
+            <figcaption>หน้าเข้าสู่ระบบจริงของ Open WebUI 0.11.0 บนเครื่องนี้</figcaption>
+          </figure>
+          <ol class="steps">
+            <li><div class="title">คลิกช่อง Email</div><p>พิมพ์อีเมลของบัญชีที่สมัครไว้</p></li>
+            <li><div class="title">คลิกช่อง Password</div><p>พิมพ์รหัสผ่าน คลิกไอคอนตาทางขวาถ้าอยากเห็นตัวอักษรชั่วคราว</p></li>
+            <li><div class="title">ตรวจก่อนกด</div><p>ต้องมีอีเมลและรหัสผ่านครบทั้งสองช่อง</p></li>
+            <li><div class="title">คลิกปุ่ม Sign in</div></li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/webui-login-filled.png" alt="หน้าล็อกอินที่กรอกแล้ว">
+            <figcaption>ตัวอย่างตอนกรอกครบ ภาพนี้ใช้อีเมลสมมติ <code>you@example.com</code></figcaption>
+          </figure>
+          <div class="callout bad">ถ้าขึ้น Invalid credentials แปลว่ารหัสหรืออีเมลผิด อย่าสร้างบัญชีใหม่เองเพราะ signup ปิดอยู่</div>
+        </section>
+
+        <section id="ui">
+          <h2>ขั้นที่ 4 รู้จักหน้าจอ</h2>
+          <figure class="shot">
+            <img src="assets/shots/webui-home.png" alt="หน้าแรก Open WebUI หลังล็อกอิน">
+            <figcaption>หน้าแรกหลังเข้าสู่ระบบ ตรงกลางคือชื่อโมเดลและช่องพิมพ์ ภาพนี้ตอน Nemotron ถ้าเปิด Qwen 35B ชื่อตรงกลางจะเป็นชื่อเต็มตามภาพถัดไป</figcaption>
+          </figure>
+          <figure class="look">
+            <img src="assets/shots/focus/webui-center.png" alt="ชื่อโมเดลตรงกลางหน้าแชท">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              ตอน Qwen 35B ชื่อตรงกลางคือ nvidia/Qwen3.6-35B-A3B-NVFP4
+            </figcaption>
+          </figure>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ตำแหน่ง</th><th>คืออะไร</th><th>กดแล้วเกิดอะไร</th></tr></thead>
+              <tbody>
+                <tr><td>แถบไอคอนซ้ายสุด</td><td>เมนูหลัก</td><td>ดินสอ = แชทใหม่, แว่น = ค้นหาประวัติ, โฟลเดอร์ = ไฟล์</td></tr>
+                <tr><td>ตัวอักษรใหญ่ตรงกลาง</td><td>โมเดลที่เลือกอยู่</td><td>ตอน Nemotron จะเป็นชื่อสั้น ตอน Qwen 35B จะเป็นชื่อเต็มตามภาพด้านบน</td></tr>
+                <tr><td>กล่อง How can I help you today?</td><td>ช่องพิมพ์</td><td>คลิกแล้วพิมพ์คำถาม</td></tr>
+                <tr><td>ชื่อโมเดลในกล่องล่างขวา</td><td>ตัวเลือกโมเดล</td><td>คลิกเพื่อเปลี่ยนถ้ามีมากกว่าหนึ่ง</td></tr>
+                <tr><td>ไอคอนไมค์</td><td>พูดแทนพิมพ์</td><td>ต้องอนุญาตไมค์ในเบราว์เซอร์ก่อน</td></tr>
+                <tr><td>วงกลมส้มมุมล่างซ้าย</td><td>บัญชีผู้ใช้</td><td>เปิดเมนูตั้งค่าส่วนตัว</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="pick">
+          <h2>ขั้นที่ 5 เลือกโมเดล</h2>
+          <ol class="steps">
+            <li><div class="title">ดูชื่อโมเดลบนหน้า</div><p>ถ้าตรงกลางขึ้นชื่อที่ต้องการ แสดงว่าเลือกอยู่แล้ว</p></li>
+            <li><div class="title">คลิกชื่อโมเดลในกล่องพิมพ์ด้านขวาล่าง</div></li>
+            <li><div class="title">รอรายการเด้งขึ้น</div><p>ต้องเห็นช่อง Search a model</p></li>
+            <li><div class="title">คลิกโมเดลที่ต้องการจนมีเครื่องหมายถูก</div></li>
+            <li><div class="title">คลิกที่ว่างนอกกล่อง หรือกด Escape</div></li>
+          </ol>
+          <figure class="look">
+            <img src="assets/shots/focus/webui-picker.png" alt="รายการเลือกโมเดลสองชื่อ">
+            <figcaption>
+              <span class="pin">ดูตรงนี้</span>
+              ตอน Qwen 35B เปิดอยู่ เห็นทั้งชื่อเต็มและชื่อสั้น เลือกอันไหนก็ได้ Arena Model ไม่ใช่โมเดลในเครื่อง
+            </figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/webui-model-picker.png" alt="รายการเลือกโมเดลตอน Nemotron">
+            <figcaption>ภาพตอน Nemotron เปิดอยู่ รายการจะเปลี่ยนตามตัวที่ vLLM เสิร์ฟตอนนั้น</figcaption>
+          </figure>
+          <div class="callout warn">ถ้าเปิดรายการแล้วไม่มี Nemotron หรือ Qwen ให้ไปหมวดโมเดล แล้วรัน <code>llm-status</code></div>
+        </section>
+
+        <section id="send">
+          <h2>ขั้นที่ 6 ส่งข้อความแรก</h2>
+          <ol class="steps">
+            <li><div class="title">คลิกในกล่อง How can I help you today?</div><p>เคอร์เซอร์ต้องกระพริบในกล่อง</p></li>
+            <li><div class="title">พิมพ์ข้อความสั้น ๆ เป็นการทดสอบ</div><p>ตัวอย่างที่ใช้จริง: <code>ตอบคำเดียวว่า pong</code></p></li>
+            <li><div class="title">ดูปุ่มลูกศรขึ้นสีดำทางขวาของกล่อง</div></li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/webui-typed.png" alt="พิมพ์ข้อความก่อนส่ง">
+            <figcaption>ก่อนส่งต้องเห็นข้อความในกล่องและปุ่มลูกศรขึ้น</figcaption>
+          </figure>
+          <ol class="steps" start="4">
+            <li><div class="title">กด Enter หรือคลิกปุ่มลูกศรขึ้น</div></li>
+            <li><div class="title">รอคำตอบ</div><p>Nemotron อาจโชว์คำว่า Thought ชั่วคราว อย่าปิดหน้าต่าง</p></li>
+            <li><div class="title">อ่านคำตอบใต้ชื่อโมเดล</div><p>ถ้าทดสอบด้วยประโยคด้านบน คำตอบควรเป็น <code>pong</code></p></li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/webui-chat-reply.png" alt="โมเดลตอบ pong">
+            <figcaption>ผลจริงบนเครื่องนี้: ฟองขวาคือข้อความเรา โมเดลตอบว่า pong</figcaption>
+          </figure>
+        </section>
+
+        <section id="more">
+          <h2>ขั้นที่ 7 แชทต่อและเปิดแชทใหม่</h2>
+          <ol class="steps">
+            <li><div class="title">พิมพ์ต่อในช่อง Send a Message ด้านล่าง</div></li>
+            <li><div class="title">กด Enter เพื่อส่งข้อความถัดไป</div></li>
+            <li><div class="title">อยากเริ่มเรื่องใหม่ ให้คลิกไอคอนดินสอซ้ายสุด</div><p>นี่คือ New Chat ห้องเก่ายังอยู่ในประวัติ</p></li>
+            <li><div class="title">เปิดประวัติด้วยไอคอนแว่นขยายทางซ้าย</div></li>
+            <li><div class="title">ไอคอนใต้คำตอบ</div><p>ดินสอ = แก้, ก๊อปปี้ = คัดลอก, ลำโพง = อ่าน, นิ้ว = ให้คะแนน, ลูกศรวง = สร้างใหม่</p></li>
+          </ol>
+        </section>
+
+        <section id="controls">
+          <h2>ขั้นที่ 8 ตั้งค่าการสุ่มคำตอบ</h2>
+          <ol class="steps">
+            <li><div class="title">อยู่หน้าแชทที่มีโมเดลถูกเลือกแล้ว</div></li>
+            <li><div class="title">เปิดแผง Controls / Chat Controls มุมบนขวา</div></li>
+            <li><div class="title">ตั้ง Temperature เป็น 1.0</div></li>
+            <li><div class="title">ตั้ง Top P เป็น 0.95</div></li>
+            <li><div class="title">ถ้าโมเดลคิดยาวเกิน ให้ปิด thinking</div><p>หรือบอกในข้อความว่าไม่ต้องคิดยาว</p></li>
+          </ol>
+          <div class="callout tip">ค่าที่ NVIDIA แนะนำสำหรับ Nemotron คือ Temperature 1.0 และ Top P 0.95</div>
+        </section>
+
+        <section id="admin">
+          <h2>ขั้นที่ 9 ตั้งค่าแอดมิน</h2>
+          <ol class="steps">
+            <li><div class="title">คลิกวงกลมส้มมุมล่างซ้าย</div></li>
+            <li><div class="title">เลือก Admin Settings หรือ Settings</div></li>
+            <li><div class="title">ตรวจว่าเวอร์ชันขึ้น v0.11.0</div></li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/webui-admin-settings.png" alt="หน้า Admin Settings">
+            <figcaption>หน้าตั้งค่าแอดมินจริง กด Save มุมขวาล่างถ้าเปลี่ยนค่า</figcaption>
+          </figure>
+          <p>อย่าปิดสวิตช์มั่ว ถ้าไม่รู้ว่าทำอะไร ให้กด Back แล้วออก</p>
+        </section>
+
+        <section id="conn">
+          <h2>ขั้นที่ 10 ตรวจการต่อ API</h2>
+          <p>หน้าเว็บไม่ได้รันโมเดลเอง มันถามเซิร์ฟเวอร์ vLLM ชื่อ <code>vllm</code> พอร์ต 8000</p>
+          <ol class="steps">
+            <li><div class="title">ใน Admin Settings คลิก Connections ทางซ้าย หมวด AI</div></li>
+            <li><div class="title">ดูว่า OpenAI API เปิดอยู่</div><p>สวิตช์ต้องสีเข้ม และที่อยู่ต้องเป็น <code>http://vllm:8000/v1</code></p></li>
+            <li><div class="title">ไม่ต้องไปยุ่งกับ Ollama API</div><p>เครื่องนี้ไม่ได้ใช้ Ollama</p></li>
+            <li><div class="title">คลิก Models ทางซ้ายเพื่อดูว่าเว็บมองเห็นโมเดลหรือไม่</div></li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/webui-connections.png" alt="หน้า Connections">
+            <figcaption>การต่อจริง: OpenAI API = http://vllm:8000/v1</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/webui-admin-models.png" alt="รายการโมเดลในแอดมิน">
+            <figcaption>แอดมินเห็นโมเดลที่กำลังเสิร์ฟอยู่เท่านั้น</figcaption>
+          </figure>
+        </section>
+
+        <div class="pager">
+          <a href="start.html"><small>กลับ</small>เริ่มต้น</a>
+          <a href="models.html"><small>ถัดไป</small>เปิด-ปิดโมเดล</a>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="assets/app.js"></script>
+</body>
+</html>

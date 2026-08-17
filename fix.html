@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>แก้ปัญหา · คู่มือ DGX Spark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"></header>
+    <div class="page">
+      <aside class="side">
+        <input class="search" id="q" type="search" placeholder="ค้นอาการ...">
+        <nav class="nav">
+          <div class="group">อาการ</div>
+          <a href="#webui">แชท :18473 ไม่ขึ้น</a>
+          <a href="#nomodel">ล็อกอินได้แต่ไม่มีโมเดล</a>
+          <a href="#stuck">กดส่งแล้วค้าง</a>
+          <a href="#ram">RAM ไม่พอ</a>
+          <a href="#comfy">เข้า :8188 ไม่ได้</a>
+          <a href="#run">กด Run แล้ว error</a>
+          <a href="#hermes">Hermes แดชบอร์ด / ตอบ 404</a>
+          <a href="#phone">มือถือในบ้านเข้าไม่ได้</a>
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="hero">
+          <div class="kicker">หมวดแก้ปัญหา</div>
+          <h1>เจออาการแล้วทำทีละข้อ</h1>
+          <p class="lede">เลือกอาการทางซ้าย แล้วทำตามลำดับ อย่าข้ามข้อ</p>
+        </header>
+
+        <section id="webui">
+          <h2>เปิด :18473 แล้วหมุนไม่ขึ้น</h2>
+          <ol class="steps">
+            <li>รัน <code>start-webui</code></li>
+            <li>รอ 5 วินาที</li>
+            <li>รีเฟรชหน้า</li>
+            <li>ถ้ายังไม่ได้ รัน <code>docker ps --filter name=open-webui</code> ต้องเห็น Up (healthy)</li>
+          </ol>
+        </section>
+
+        <section id="nomodel">
+          <h2>ล็อกอินได้แต่ไม่มีโมเดลให้เลือก</h2>
+          <ol class="steps">
+            <li>รัน <code>llm-status</code></li>
+            <li>ถ้า Model: stopped ให้รัน <code>start-nemotron</code> แล้วรอ Ready</li>
+            <li>รีเฟรชเว็บ</li>
+            <li>เปิดตัวเลือกโมเดลอีกครั้ง</li>
+          </ol>
+        </section>
+
+        <section id="stuck">
+          <h2>กดส่งแล้วค้างหรือ error</h2>
+          <ol class="steps">
+            <li>ดูว่าโมเดลเพิ่งสตาร์ทหรือยัง ถ้ายังไม่ถึง Ready ให้รอ</li>
+            <li>เปิดแท็บใหม่ไปที่ <a href="http://127.0.0.1:8000/v1/models">http://127.0.0.1:8000/v1/models</a> ต้องเป็น JSON มีชื่อโมเดล</li>
+            <li>ถ้าหน้า 8000 ไม่ขึ้น ดูล็อกในหมวดระบบ</li>
+          </ol>
+        </section>
+
+        <section id="ram">
+          <h2>ขึ้นว่า RAM ไม่พอตอนสตาร์ทโมเดล</h2>
+          <ol class="steps">
+            <li>ปิดแท็บ Chrome / Firefox ที่ไม่ใช้</li>
+            <li>รัน <code>stop-model</code> แล้วลองใหม่</li>
+            <li>อย่าเปิดโมเดลสองตัว</li>
+            <li>ถ้ายังสร้างภาพใน ComfyUI อยู่ ให้รอให้เสร็จหรือปิด ComfyUI ชั่วคราว</li>
+          </ol>
+        </section>
+
+        <section id="comfy">
+          <h2>เข้า :8188 ไม่ได้</h2>
+          <ol class="steps">
+            <li>รัน <code>~/ai/comfyui/scripts/start.sh</code> ไม่ใช่ไปยุ่งคอนเทนเนอร์โมเดลแชท</li>
+            <li>รอ 10 วินาที</li>
+            <li>รีเฟรช <a href="http://127.0.0.1:8188">http://127.0.0.1:8188</a></li>
+            <li>ถ้ายังไม่ได้ ดู <code>docker logs --tail 40 comfyui-dgx</code> จนเจอบรรทัด GUI</li>
+          </ol>
+        </section>
+
+        <section id="run">
+          <h2>กด Run ใน ComfyUI แล้วขึ้น errors</h2>
+          <p>กรอบแดงหรือ Missing Models แปลว่ายังไม่มีไฟล์ ไม่ใช่เครื่องพัง</p>
+          <ol class="steps">
+            <li>อ่านแผง Errors ด้านขวา แล้วกด View details</li>
+            <li>ถ้าขาด Z-Image หรือ CLIP ให้ไปหมวด <a href="comfy.html#first">งานแรก</a></li>
+            <li>ถ้าจะทำวิดีโอ ต้องมีโมเดลวิดีโอแยก ดู <a href="comfy.html#video">ข้อความเป็นวิดีโอ</a></li>
+            <li>อย่าเพิ่งกด Download all ถ้ายังมีโมเดลแชทกิน RAM</li>
+          </ol>
+        </section>
+
+        <section id="hermes">
+          <h2>Hermes แดชบอร์ดไม่ขึ้น หรือเอเจนต์ตอบ 404</h2>
+          <p>แยกอาการก่อน แดชบอร์ดไม่ขึ้น คนละเรื่องกับแดชบอร์ดขึ้นแต่ตอบ 404</p>
+          <h3>แดชบอร์ดไม่ขึ้น</h3>
+          <ol class="steps">
+            <li>เปิดจากเครื่อง DGX เท่านั้น <a href="http://127.0.0.1:18789/">http://127.0.0.1:18789/</a></li>
+            <li>รัน <code>nemoclaw hermes status</code></li>
+            <li>ถ้า sandbox หยุด รัน <code>nemoclaw hermes start</code></li>
+            <li>ถ้าพอร์ตยังเงียบ รัน <code>nemoclaw hermes recover</code></li>
+          </ol>
+          <h3>แดชบอร์ดขึ้น แต่ส่งข้อความแล้ว 404 / โมเดลไม่มี</h3>
+          <p>นี่ไม่ใช่ Hermes พัง ชื่อที่เอเจนต์ยิงไม่ตรงกับชื่อที่ vLLM ประกาศ</p>
+          <ol class="steps">
+            <li>อย่าพิมพ์ <code>qwen35-start</code> ใช้ <code>start-qwen35</code> อันเดียว</li>
+            <li>รอ Ready จนเห็น <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code></li>
+            <li>ตรวจ <code>curl -s http://127.0.0.1:8000/v1/models</code> ต้องมีชื่อเต็ม</li>
+            <li>ตรวจ <code>nemoclaw hermes status</code> บรรทัด Inference ต้อง healthy</li>
+            <li>ส่งข้อความในห้องใหม่ อย่าดูห้องเก่าที่ error ค้าง</li>
+          </ol>
+          <p>อธิบายครบทุกชั้นอยู่ที่ <a href="models.html#why">โมเดล · เรื่องที่เกิดจริง</a> และ <a href="hermes.html#name">Hermes · ชื่อต้องตรง</a></p>
+        </section>
+
+        <section id="phone">
+          <h2>เข้าจากมือถือในบ้านไม่ได้</h2>
+          <ol class="steps">
+            <li>ตรวจว่ามือถือกับ DGX อยู่ Wi-Fi เดียวกัน</li>
+            <li>ใช้ <code>http://192.168.178.98:18473</code> หรือ <code>:8188</code></li>
+            <li>บน iPhone ถ้า Safari บล็อก local network ให้เปิดสิทธิ์ให้เบราว์เซอร์</li>
+          </ol>
+        </section>
+
+        <div class="pager">
+          <a href="system.html"><small>กลับ</small>ระบบเครื่อง</a>
+          <a href="terms.html"><small>ถัดไป</small>ศัพท์ Local AI</a>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="assets/app.js"></script>
+</body>
+</html>

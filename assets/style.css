@@ -478,7 +478,18 @@ section h2 {
   flex-wrap: wrap;
   gap: .5rem;
 }
-section > :not(h2):not(.remember) {
+.sec-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 6;
+  object-fit: cover;
+  object-position: center;
+  background: var(--bg-2);
+  border: 0;
+  margin: 0;
+}
+section > :not(h2):not(.remember):not(.sec-art) {
   margin-left: 1.1rem;
   margin-right: 1.1rem;
 }

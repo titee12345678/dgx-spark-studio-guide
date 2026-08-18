@@ -313,9 +313,19 @@ function decorateSections() {
     if (icon && !h2.querySelector(".ico")) {
       h2.insertAdjacentHTML("afterbegin", ico(icon));
     }
+    const sec = h2.parentElement;
+    if (id && !sec.querySelector(":scope > .sec-art")) {
+      const img = document.createElement("img");
+      img.className = "sec-art";
+      img.src = `assets/sec/${id}.jpg`;
+      img.alt = "";
+      img.addEventListener("error", () => img.remove());
+      h2.insertAdjacentElement("afterend", img);
+    }
     const tip = (PAGE_REMEMBER[page] && PAGE_REMEMBER[page][id]) || REMEMBER[id];
-    if (tip && !h2.parentElement.querySelector(":scope > .remember")) {
-      h2.insertAdjacentHTML("afterend", `<p class="remember">${tip.replace(/^จำง่าย:\s*/, "")}</p>`);
+    if (tip && !sec.querySelector(":scope > .remember")) {
+      const after = sec.querySelector(":scope > .sec-art") || h2;
+      after.insertAdjacentHTML("afterend", `<p class="remember">${tip.replace(/^จำง่าย:\s*/, "")}</p>`);
     }
   });
   document.querySelectorAll(".side .nav a[href^='#']").forEach((a) => {

@@ -130,6 +130,23 @@ const REMEMBER = {
   nodes: "จำง่าย: มี Manager, Video Helper, KJNodes, RIFE อยู่แล้ว",
 };
 
+const THEME_KEY = "guide-theme";
+
+function currentTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "light" || saved === "dark") return saved;
+  } catch (_) {}
+  return "dark";
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+  const btn = document.querySelector(".theme-btn");
+  if (btn) btn.textContent = theme === "light" ? "โหมดมืด" : "โหมดสว่าง";
+}
+
 function ico(id) {
   return `<span class="ico" aria-hidden="true"><svg><use href="assets/icons.svg#${id}"></use></svg></span>`;
 }
@@ -152,6 +169,7 @@ function injectChrome() {
       <nav class="top-nav">
         ${NAV.map(([href, label, icon]) => `<a href="${href}" class="${href === here ? "active" : ""}">${ico(icon)}${label}</a>`).join("")}
       </nav>
+      <button class="theme-btn" type="button" aria-label="สลับโหมดสว่างหรือมืด"></button>
       <button class="menu-btn" type="button" aria-label="เมนู">☰</button>
     `;
   }
@@ -171,6 +189,10 @@ function injectChrome() {
   document.querySelector(".menu-btn")?.addEventListener("click", () => {
     document.body.classList.toggle("nav-open");
   });
+  document.querySelector(".theme-btn")?.addEventListener("click", () => {
+    applyTheme(currentTheme() === "light" ? "dark" : "light");
+  });
+  applyTheme(currentTheme());
   document.querySelectorAll(".side a, .top-nav a").forEach((a) => {
     a.addEventListener("click", () => document.body.classList.remove("nav-open"));
   });

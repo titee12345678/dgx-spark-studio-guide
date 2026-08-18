@@ -317,7 +317,7 @@ kbd {
   aspect-ratio: 16 / 9;
   height: auto;
   object-fit: cover;
-  background: #070907;
+  background: var(--bg-2);
 }
 .page.hub .tile .body {
   padding: .85rem 1.05rem 1rem;
@@ -552,11 +552,11 @@ section h2 .ico { color: var(--on-tone); }
 .bar {
   margin: .85rem 0 1rem;
   border: 1px solid var(--line);
-  background: #0c110b;
+  background: var(--panel-2);
   padding: .8rem .9rem;
 }
 .bar .label { display: flex; justify-content: space-between; color: var(--muted); font-size: .85rem; margin-bottom: .35rem; }
-.bar .track { height: 18px; background: #1a2416; border-radius: 99px; overflow: hidden; display: flex; }
+.bar .track { height: 18px; background: color-mix(in srgb, var(--ink) 12%, var(--panel)); border-radius: 99px; overflow: hidden; display: flex; }
 .bar .fill { height: 100%; background: var(--nv); }
 .bar .fill.warn { background: #c9a227; }
 .bar .fill.bad { background: #ef6b6b; }
@@ -582,7 +582,7 @@ h4 { margin: 1.1rem 0 .35rem; font-size: 1.02rem; color: var(--ink); }
 .flow .box {
   border: 1px solid color-mix(in srgb, var(--tone, var(--nv)) 35%, var(--line));
   border-left: 4px solid var(--tone, var(--nv));
-  background: #0b0f0a;
+  background: var(--panel-2);
   padding: .75rem .9rem;
 }
 .flow .box b { color: var(--nv); display: block; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .2rem; }
@@ -681,7 +681,7 @@ pre {
   top: .5rem;
   right: .5rem;
   border: 1px solid var(--line-2);
-  background: #13200f;
+  background: var(--hover);
   color: var(--nv);
   border-radius: 8px;
   padding: .28rem .55rem;
@@ -691,7 +691,7 @@ pre {
 figure.shot, figure.look {
   margin: 1rem 0 1.2rem;
   border: 1px solid color-mix(in srgb, var(--tone, var(--nv)) 40%, var(--line));
-  background: #070907;
+  background: var(--bg-2);
   overflow: hidden;
 }
 figure.shot, figure.look { max-width: none; }
@@ -702,7 +702,7 @@ figure.shot img, figure.look img {
   max-height: min(62vh, 640px);
   object-fit: contain;
   object-position: center top;
-  background: #0a0c09;
+  background: var(--bg-2);
   cursor: zoom-in;
 }
 figure.shot.slim img { max-height: 110px; }
@@ -753,7 +753,7 @@ figure.shot img:hover, figure.look img:hover { outline: 2px solid var(--nv); out
   top: .8rem;
   right: .8rem;
   border: 1px solid var(--line-2);
-  background: #13200f;
+  background: var(--hover);
   color: var(--nv);
   border-radius: 8px;
   padding: .4rem .75rem;

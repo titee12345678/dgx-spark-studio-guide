@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
-  <script>try{var t=localStorage.getItem("guide-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-  <link rel="stylesheet" href="assets/style.css?v=20260818d">
+  <script>try{var t=localStorage.getItem("guide-theme");if(t!=="light"&&t!=="dark"){var m=document.cookie.match(/(?:^|; )guide-theme=(light|dark)/);t=m&&m[1]}if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t);document.documentElement.classList.toggle("light",t==="light")}}catch(e){}</script>
+  <link rel="stylesheet" href="assets/style.css?v=20260818e">
 </head>
 <body>
   <div class="shell">
@@ -680,6 +680,6 @@ docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'</pre></div>
       </main>
     </div>
   </div>
-  <script src="assets/app.js?v=20260818d"></script>
+  <script src="assets/app.js?v=20260818e"></script>
 </body>
 </html>

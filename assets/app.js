@@ -136,16 +136,30 @@ function currentTheme() {
   try {
     const saved = localStorage.getItem(THEME_KEY);
     if (saved === "light" || saved === "dark") return saved;
+    const match = document.cookie.match(/(?:^|; )guide-theme=(light|dark)/);
+    if (match) return match[1];
   } catch (_) {}
   return "dark";
 }
 
-function applyTheme(theme) {
+function applyTheme(theme, persist = true) {
   document.documentElement.dataset.theme = theme;
-  try { localStorage.setItem(THEME_KEY, theme); } catch (_) {}
+  document.documentElement.classList.toggle("light", theme === "light");
+  if (persist) {
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+      document.cookie = `${THEME_KEY}=${theme};path=/;max-age=31536000;SameSite=Lax`;
+    } catch (_) {}
+  }
   const btn = document.querySelector(".theme-btn");
   if (btn) btn.textContent = theme === "light" ? "โหมดมืด" : "โหมดสว่าง";
 }
+
+window.addEventListener("storage", (e) => {
+  if (e.key === THEME_KEY && (e.newValue === "light" || e.newValue === "dark")) {
+    applyTheme(e.newValue, false);
+  }
+});
 
 function ico(id) {
   return `<span class="ico" aria-hidden="true"><svg><use href="assets/icons.svg#${id}"></use></svg></span>`;

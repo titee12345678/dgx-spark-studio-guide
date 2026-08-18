@@ -55,6 +55,11 @@
               <h3>เอเจนต์ · Hermes</h3>
               <p>อยู่ในกรง sandbox ยิงโมเดลจากพอร์ต 8000</p>
             </article>
+            <article class="viz-card">
+              <span class="k">พอร์ต 8000 คนละโปรแกรม</span>
+              <h3>เขียนโค้ด · Claude Code</h3>
+              <p>เปิดด้วย <code>claude-local</code> ไม่ใช่หน้าเว็บ ใช้โมเดลก้อนเดียวกับแชท</p>
+            </article>
           </div>
           <div class="shot-grid">
             <figure class="shot">
@@ -89,6 +94,7 @@
                 <tr><td>โมเดล Qwen 35B</td><td>vLLM · ชื่อเต็มที่ Hermes ใช้ · RAM 40%</td><td>:8000 ช่องเดียวกัน</td><td><code>start-qwen35</code></td><td><code>stop-model</code></td></tr>
                 <tr><td>สร้างภาพ</td><td>ComfyUI</td><td><a href="http://127.0.0.1:8188">:8188</a></td><td><code>docker start comfyui-dgx</code></td><td><code>docker stop comfyui-dgx</code></td></tr>
                 <tr><td>เอเจนต์ Hermes</td><td>NemoClaw sandbox</td><td><a href="http://127.0.0.1:18789">:18789</a></td><td><code>nemoclaw hermes start</code></td><td><code>nemoclaw hermes stop</code></td></tr>
+                <tr><td>เขียนโค้ดในเทอร์มินัล</td><td>Claude Code → vLLM</td><td>:8000 คนละโปรแกรมกับแชท</td><td><code>claude-local</code></td><td>ออกจากเซสชัน แล้ว <code>stop-model</code> ถ้าเลิกใช้โมเดล</td></tr>
                 <tr><td>คู่มือนี้</td><td>เว็บสแตติก</td><td><a href="http://127.0.0.1:8790">:8790</a></td><td><code>start-guide</code></td><td><code>stop-guide</code></td></tr>
               </tbody>
             </table>

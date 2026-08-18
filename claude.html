@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Claude Code · คู่มือ DGX Spark</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"></header>
+    <div class="page">
+      <aside class="side">
+        <input class="search" id="q" type="search" placeholder="ค้นในหน้า Claude Code...">
+        <nav class="nav">
+          <div class="group">Claude Code</div>
+          <a href="#what">คนละโปรแกรมกับแชท</a>
+          <a href="#now">สถานะบนเครื่องนี้</a>
+          <a href="#why">ทำไมต้องใช้ wrapper</a>
+          <a href="#start">ขั้นที่ 1 เปิดโมเดล</a>
+          <a href="#launch">ขั้นที่ 2 เปิด claude-local</a>
+          <a href="#check">ขั้นที่ 3 ตรวจว่าใช้โมเดลในเครื่อง</a>
+          <a href="#switch">สลับโมเดลตอนนี้</a>
+          <a href="#future">เพิ่มโมเดลใหม่ในอนาคต</a>
+          <a href="#env">ตัวแปรที่ wrapper ตั้งให้</a>
+          <a href="#cloud">กลับไปใช้ Claude ของ Anthropic</a>
+          <a href="#fix">ปัญหาที่เจอบนเครื่องนี้</a>
+        </nav>
+      </aside>
+      <main class="main">
+        <header class="hero">
+          <div class="kicker">หมวดเขียนโค้ด · ใช้พอร์ต 8000</div>
+          <h1>ใช้ Claude Code กับโมเดลในเครื่อง</h1>
+          <p class="lede">Claude Code คือโปรแกรมในเทอร์มินัล ไม่ใช่หน้าเว็บแชท และไม่ใช่ Hermes คำสั่ง <code>claude-local</code> ชี้ไปที่ vLLM บนเครื่องนี้ อ่านชื่อโมเดลจาก API จริง จึงสลับโมเดลในอนาคตได้โดยไม่ต้องแก้ไฟล์คอนฟิกของ Claude</p>
+        </header>
+
+        <section id="what">
+          <h2>คนละโปรแกรมกับแชท</h2>
+          <div class="grid">
+            <article class="card">
+              <h3>Open WebUI :18473</h3>
+              <p>หน้าเว็บคุยทั่วไป เลือกโมเดลจากรายการด้านบน ไม่แก้ไฟล์ในโปรเจกต์ให้</p>
+            </article>
+            <article class="card">
+              <h3>Hermes :18789</h3>
+              <p>เอเจนต์ในกรง sandbox มีแดชบอร์ด Chat / Cron / Skills คนละโปรเซสกับ Claude Code</p>
+            </article>
+            <article class="card">
+              <h3>Claude Code ในเทอร์มินัล</h3>
+              <p>อ่านโค้ดในโฟลเดอร์ที่เปิดอยู่ แก้ไฟล์ รันคำสั่ง ใช้โมเดลก้อนเดียวกับแชทผ่านพอร์ต 8000</p>
+            </article>
+            <article class="card">
+              <h3>คำสั่ง <code>claude</code> เปล่า ๆ</h3>
+              <p>ยังคุยกับ Anthropic ตามปกติ ไม่ถูกชี้เข้าเครื่องนี้ เพื่อไม่ให้ทุกเซสชันเผลอใช้โมเดล local</p>
+            </article>
+          </div>
+          <div class="callout tip">จำแบบนี้: อยากคุยในเบราว์เซอร์ใช้ Open WebUI อยากให้เอเจนต์ในกรงทำงานใช้ Hermes อยากให้ตัวช่วยเขียนโค้ดในเทอร์มินัลใช้ <code>claude-local</code></div>
+        </section>
+
+        <section id="now">
+          <h2>สถานะบนเครื่องนี้</h2>
+          <p>ตรวจจากไฟล์และคำสั่งจริง วันที่ 18 สิงหาคม 2026</p>
+          <ul>
+            <li>Claude Code อยู่ที่ <code>~/.local/bin/claude</code> เวอร์ชัน <strong>2.1.233</strong></li>
+            <li>vLLM ภาพ <code>vllm/vllm-openai:latest</code> คือ <strong>0.27.1</strong> มี Anthropic Messages API ที่ <code>/v1/messages</code> รองรับ role ที่ Claude Code รุ่นใหม่ส่งมาแล้ว (แก้ใน vLLM 0.23.0)</li>
+            <li>คำสั่งใหม่: <code>claude-local</code> ไฟล์จริง <code>/home/dgxspark/ai/open-webui/claude-local</code> ลิงก์ที่ <code>~/.local/bin/claude-local</code></li>
+            <li>พิมพ์ <code>start-claude</code> ได้เหมือนกัน เป็นลิงก์ไปไฟล์เดียวกัน</li>
+            <li>โมเดลที่สลับได้ตอนนี้: <code>qwen35</code> <code>qwen27</code> <code>nemotron</code> เปิดได้ทีละตัวบนพอร์ต 8000</li>
+            <li>ชื่อที่ Claude Code ใช้ต้องไม่มีเครื่องหมาย <code>/</code> ดังนั้น wrapper จะเลือกชื่อสั้น เช่น <code>Qwen3.6-35B</code> ไม่ใช้ <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code></li>
+          </ul>
+          <figure class="shot">
+            <img src="assets/shots/term-claude-help.png" alt="ผลลัพธ์ claude-local --help">
+            <figcaption>คำสั่ง <code>claude-local --help</code> จริง แสดงโมเดลในสตูดิโอและวิธีเพิ่มตัวใหม่</figcaption>
+          </figure>
+        </section>
+
+        <section id="why">
+          <h2>ทำไมต้องใช้ wrapper</h2>
+          <p>Claude Code พูดภาษา Anthropic Messages API ไม่ใช่ภาษา OpenAI ที่ Open WebUI ใช้ vLLM บนเครื่องนี้พูดได้ทั้งสองภาษาที่พอร์ตเดียวกัน</p>
+          <ol class="steps">
+            <li>
+              <div class="title">โปรแกรมยิงไปที่ ANTHROPIC_BASE_URL</div>
+              <p>ค่าเริ่มต้นคือเซิร์ฟเวอร์ของ Anthropic ถ้าไม่เปลี่ยน <code>claude</code> จะออกเน็ต</p>
+            </li>
+            <li>
+              <div class="title">wrapper ตั้ง URL เป็น http://127.0.0.1:8000</div>
+              <p>คำขอไปที่ vLLM ในเครื่อง คีย์ใส่ <code>dummy</code> ได้เพราะ vLLM ไม่ตรวจจริง</p>
+            </li>
+            <li>
+              <div class="title">Claude Code ยังเรียกโมเดลชื่อ opus / sonnet / haiku ข้างใน</div>
+              <p>ต้อง remap ทั้งสามชื่อไปที่ชื่อที่ API ประกาศจริง ไม่เช่นนั้นจะได้ 404</p>
+            </li>
+            <li>
+              <div class="title">ชื่อถูกอ่านจาก GET /v1/models ทุกครั้งที่เปิด</div>
+              <p>สลับโมเดลแล้วไม่ต้องไปแก้ <code>~/.claude/settings.json</code></p>
+            </li>
+          </ol>
+          <div class="callout warn">อย่าใส่ <code>ANTHROPIC_BASE_URL</code> ลงใน <code>~/.claude/settings.json</code> ของทั้งเครื่อง ค่านี้จะทำให้คำสั่ง <code>claude</code> ธรรมดาชี้เข้า local ทั้งหมด แล้วเลิกคุยกับ Anthropic ได้โดยไม่ตั้งใจ</div>
+        </section>
+
+        <section id="start">
+          <h2>ขั้นที่ 1 เปิดโมเดล</h2>
+          <p>Claude Code ไม่ได้โหลดโมเดลเอง มันยิงไปพอร์ต 8000 เหมือน Open WebUI และ Hermes เปิดได้ทีละตัว</p>
+          <ol class="steps">
+            <li>
+              <div class="title">เปิดเทอร์มินัลบนเครื่อง DGX</div>
+            </li>
+            <li>
+              <div class="title">เลือกโมเดลที่อยากให้เขียนโค้ด</div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>งาน</th><th>คำสั่งเปิด</th><th>ชื่อที่ Claude Code จะใช้</th></tr></thead>
+                  <tbody>
+                    <tr><td>เขียนโค้ด / เรียกเครื่องมือ แนะนำตัวนี้</td><td><code>start-qwen35</code></td><td><code>Qwen3.6-35B</code></td></tr>
+                    <tr><td>แชทโค้ดทั่วไป กิน RAM สูงกว่า</td><td><code>start-qwen27</code></td><td><code>Qwen3.6-27B</code></td></tr>
+                    <tr><td>งานยาว มี speculative decoding</td><td><code>start-nemotron</code></td><td><code>Nemotron-3.5-Lightning</code></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>ทั้งสามสูตรเปิด <code>--enable-auto-tool-choice</code> อยู่แล้ว Claude Code ต้องมี tool calling</p>
+            </li>
+            <li>
+              <div class="title">รอจนขึ้น Ready.</div>
+              <p>ใช้เวลาประมาณ 2–6 นาที อย่าปิดแท็บ อย่ากด Ctrl+C</p>
+            </li>
+            <li>
+              <div class="title">ตรวจชื่อที่ API ประกาศ</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>llm-status
+claude-local --status</pre></div>
+              <p>ต้องเห็นบรรทัด <code>(ok for Claude Code)</code> อย่างน้อยหนึ่งชื่อ และบรรทัด <code>Will map opus/sonnet/haiku</code></p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/term-claude-status.png" alt="ผลลัพธ์ claude-local --status ตอนโมเดลเปิด">
+            <figcaption>สถานะจริง: wrapper เลือกชื่อสั้นที่ไม่มี / ให้ Claude Code</figcaption>
+          </figure>
+          <div class="callout ok">ข้ามขั้นนี้ได้ถ้าพิมพ์ <code>claude-local qwen35</code> อันเดียว มันจะเรียก <code>start-qwen35</code> ให้ก่อนแล้วค่อยเปิด Claude Code</div>
+        </section>
+
+        <section id="launch">
+          <h2>ขั้นที่ 2 เปิด claude-local</h2>
+          <ol class="steps">
+            <li>
+              <div class="title">เข้าโฟลเดอร์โปรเจกต์ที่จะให้มันแตะไฟล์</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>cd /path/to/your/project</pre></div>
+              <p>Claude Code ทำงานกับโฟลเดอร์ปัจจุบัน ไม่ใช่ทั้งเครื่องโดยอัตโนมัติ</p>
+            </li>
+            <li>
+              <div class="title">พิมพ์คำสั่งนี้ แล้วกด Enter</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>claude-local</pre></div>
+              <p>ถ้ายังไม่ได้เปิดโมเดล ให้ระบุชื่อเลย</p>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>claude-local qwen35</pre></div>
+            </li>
+            <li>
+              <div class="title">อ่านบรรทัดแรกที่พิมพ์ออกมา</div>
+              <p>ต้องคล้าย <code>Claude Code → http://127.0.0.1:8000  model=Qwen3.6-35B</code> ถ้าไม่ขึ้นบรรทัดนี้ แปลว่าเปิด <code>claude</code> เปล่า ๆ อยู่</p>
+            </li>
+            <li>
+              <div class="title">รอจนเข้าเซสชันเทอร์มินัลของ Claude Code</div>
+              <p>พิมพ์งานได้ตามปกติ เช่น อ่านไฟล์ แก้บั๊ก เขียนฟังก์ชัน</p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/term-claude-help.png" alt="วิธีใช้ claude-local">
+            <figcaption>อย่าพิมพ์แค่ <code>claude</code> ถ้าต้องการโมเดลในเครื่อง ต้องเป็น <code>claude-local</code></figcaption>
+          </figure>
+        </section>
+
+        <section id="check">
+          <h2>ขั้นที่ 3 ตรวจว่าใช้โมเดลในเครื่อง</h2>
+          <ol class="steps">
+            <li>
+              <div class="title">ดูสถานะก่อนเข้าเซสชัน</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>claude-local --status</pre></div>
+            </li>
+            <li>
+              <div class="title">ดูรายการโมเดลดิบจาก API</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>curl -s http://127.0.0.1:8000/v1/models</pre></div>
+              <p>ต้องเป็น JSON มี <code>id</code> อย่างน้อยหนึ่งอันที่ไม่มี <code>/</code></p>
+            </li>
+            <li>
+              <div class="title">ทดสอบ Anthropic Messages API โดยไม่เปิดตัวช่วยเขียนโค้ด</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>curl -s http://127.0.0.1:8000/v1/messages \
+  -H 'content-type: application/json' \
+  -H 'x-api-key: dummy' \
+  -H 'anthropic-version: 2023-06-01' \
+  -d '{"model":"Qwen3.6-35B","max_tokens":32,"messages":[{"role":"user","content":"Reply with exactly: pong"}]}'</pre></div>
+              <p>ถ้าโมเดลเป็นตัวอื่น ให้เปลี่ยนช่อง <code>model</code> เป็นชื่อที่ <code>claude-local --status</code> บอกว่าจะ map</p>
+            </li>
+            <li>
+              <div class="title">ในเซสชัน Claude Code ส่งข้อความสั้น ๆ</div>
+              <p>ถ้าตอบได้ แปลว่า remap ชื่อ opus/sonnet/haiku ทำงาน ถ้าขึ้น model not found ให้กลับไปขั้นที่ 1</p>
+            </li>
+          </ol>
+          <figure class="shot">
+            <img src="assets/shots/term-claude-models.png" alt="GET /v1/models ตอนใช้กับ Claude Code">
+            <figcaption>รายการจริงจากพอร์ต 8000 ชื่อที่มี / ใช้กับ Hermes ได้ แต่ Claude Code ใช้ชื่อสั้นเท่านั้น</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/shots/term-claude-ping.png" alt="claude-local ตอบ pong จากโมเดลในเครื่อง">
+            <figcaption>ผลจริง: <code>claude-local -p</code> ชี้ไปที่ <code>Qwen3.6-35B</code> แล้วได้คำว่า pong คำเตือน unrecognized_model ปกติ เพราะชื่อนี้ไม่ใช่ชื่อโมเดลของ Anthropic</figcaption>
+          </figure>
+        </section>
+
+        <section id="switch">
+          <h2>สลับโมเดลตอนนี้</h2>
+          <p>พอร์ต 8000 มีที่เดียว เปิดโมเดลใหญ่ได้ทีละก้อน สลับแล้วเซสชัน Claude Code เก่าจะขาดการเชื่อมต่อ</p>
+          <ol class="steps">
+            <li>
+              <div class="title">ออกจาก Claude Code</div>
+              <p>พิมพ์ <code>/exit</code> หรือกด <kbd>Ctrl</kbd> + <kbd>C</kbd> จนกลับมาที่เชลล์</p>
+            </li>
+            <li>
+              <div class="title">สั่งเปิดตัวใหม่ด้วยคำสั่งเดียว</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>claude-local nemotron</pre></div>
+              <p>หรือ <code>claude-local qwen27</code> หรือ <code>claude-local qwen35</code></p>
+            </li>
+            <li>
+              <div class="title">รอ Ready แล้วอ่านบรรทัด model=...</div>
+              <p>ชื่อต้องเปลี่ยนตามตัวที่เพิ่งเปิด เช่น <code>model=Nemotron-3.5-Lightning</code></p>
+            </li>
+          </ol>
+          <p>ถ้าอยากเปิดโมเดลแยก แล้วค่อยเข้า Claude Code คนละแท็บ</p>
+          <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>start-nemotron
+claude-local --status
+claude-local</pre></div>
+          <div class="callout warn">อย่าเปิด <code>claude-local</code> ค้างไว้แล้วไปรัน <code>start-qwen35</code> ในอีกแท็บ คอนเทนเนอร์เก่าจะถูกปิด พอร์ต 8000 ว่างชั่วคราว เซสชันที่เปิดอยู่จะพัง</div>
+        </section>
+
+        <section id="future">
+          <h2>เพิ่มโมเดลใหม่ในอนาคต</h2>
+          <p>ไม่ต้องแก้ Claude Code และไม่ต้องแก้ <code>claude-local</code> ให้ตามสามขั้นนี้ แล้วชื่อจะถูกอ่านจาก API เอง</p>
+          <ol class="steps">
+            <li>
+              <div class="title">ใส่โปรไฟล์ใหม่ใน docker-compose</div>
+              <p>ไฟล์ <code>/home/dgxspark/ai/open-webui/docker-compose.yml</code> ดูบล็อก <code>qwen35:</code> แล้วคัดแบบมา เปลี่ยนชื่อบริการ ชื่อคอนเทนเนอร์ และพาธโมเดล</p>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>- --served-model-name
+- MyNewModel</pre></div>
+              <p>ชื่อนี้ห้ามมี <code>/</code> ห้ามเป็นแค่ <code>org/name</code> จาก Hugging Face Claude Code รับไม่ได้</p>
+            </li>
+            <li>
+              <div class="title">เปิด tool calling</div>
+              <p>ต้องมีสองธงนี้ ไม่งั้น Claude Code เรียกเครื่องมือในเทอร์มินัลไม่ได้</p>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>- --enable-auto-tool-choice
+- --tool-call-parser
+- qwen3_coder</pre></div>
+              <p>ค่า parser ต้องตรงตระกูลโมเดล ดูเอกสาร vLLM ไม่ใช่ก็อปของ Qwen ทุกครั้ง</p>
+            </li>
+            <li>
+              <div class="title">เพิ่มคำสั่ง start ของสตูดิโอ</div>
+              <p>ใน <code>/home/dgxspark/ai/open-webui/llm</code> ใส่ชื่อโปรไฟล์ลง <code>MODELS</code> แล้วสร้างลิงก์</p>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>cat &gt; ~/.local/bin/start-mynew &lt;&lt;'EOF'
+#!/usr/bin/env bash
+exec /home/dgxspark/ai/open-webui/llm start mynew
+EOF
+chmod +x ~/.local/bin/start-mynew</pre></div>
+              <p>คำว่า <code>mynew</code> ต้องตรงกับชื่อโปรไฟล์ใน compose</p>
+            </li>
+            <li>
+              <div class="title">เปิดด้วย wrapper</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>claude-local mynew</pre></div>
+              <p>wrapper เดินหา <code>start-*</code> ที่เรียก <code>llm start</code> เอง ไม่ต้องไปเพิ่มรายชื่อในสคริปต์ Claude</p>
+            </li>
+            <li>
+              <div class="title">ตรวจว่าชื่อสั้นถูกเลือก</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>claude-local --status</pre></div>
+              <p>ต้องเห็น <code>MyNewModel (ok for Claude Code)</code> ถ้ามีแต่ชื่อที่มี <code>/</code> wrapper จะปฏิเสธและบอกให้ใส่ alias</p>
+            </li>
+          </ol>
+          <div class="callout tip">อยากบังคับชื่อเองโดยไม่ให้เลือกอัตโนมัติ ใส่ <code>CLAUDE_LOCAL_MODEL=MyNewModel</code> ข้างหน้าคำสั่ง ชื่อนี้ต้องอยู่ใน <code>/v1/models</code> และต้องไม่มี <code>/</code></div>
+        </section>
+
+        <section id="env">
+          <h2>ตัวแปรที่ wrapper ตั้งให้</h2>
+          <p>ไม่ต้องพิมพ์เอง เปิดดูเพื่อรู้ว่าถ้าเซสชันชี้ผิดที่ ผิดตรงไหน</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ตัวแปร</th><th>ค่าบนเครื่องนี้</th><th>หน้าที่</th></tr></thead>
+              <tbody>
+                <tr><td><code>ANTHROPIC_BASE_URL</code></td><td><code>http://127.0.0.1:8000</code></td><td>ชี้ Claude Code ไป vLLM</td></tr>
+                <tr><td><code>ANTHROPIC_API_KEY</code></td><td><code>dummy</code></td><td>vLLM ไม่ตรวจคีย์</td></tr>
+                <tr><td><code>ANTHROPIC_AUTH_TOKEN</code></td><td><code>dummy</code></td><td>Claude Code บังคับให้มี</td></tr>
+                <tr><td><code>ANTHROPIC_DEFAULT_OPUS_MODEL</code></td><td>ชื่อสั้นจาก API</td><td>งานระดับ opus ไปโมเดลในเครื่อง</td></tr>
+                <tr><td><code>ANTHROPIC_DEFAULT_SONNET_MODEL</code></td><td>ชื่อสั้นจาก API</td><td>งานระดับ sonnet ไปโมเดลเดียวกัน</td></tr>
+                <tr><td><code>ANTHROPIC_DEFAULT_HAIKU_MODEL</code></td><td>ชื่อสั้นจาก API</td><td>งานเบาระดับ haiku ไปโมเดลเดียวกัน</td></tr>
+                <tr><td><code>CLAUDE_CODE_ATTRIBUTION_HEADER</code></td><td><code>0</code></td><td>กันพรอมต์เปลี่ยนทุกคำขอ ช่วย prefix cache</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>บนเครื่องนี้เปิดโมเดลได้ทีละตัว เลย map ทั้ง opus sonnet haiku ไปก้อนเดียวกัน ไม่ได้แยกโมเดลเล็กให้ haiku</p>
+        </section>
+
+        <section id="cloud">
+          <h2>กลับไปใช้ Claude ของ Anthropic</h2>
+          <ol class="steps">
+            <li>
+              <div class="title">ออกจากเซสชันที่เปิดด้วย claude-local</div>
+            </li>
+            <li>
+              <div class="title">พิมพ์คำสั่งเดิมของ Anthropic</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>claude</pre></div>
+              <p>คำสั่งนี้ไม่ได้อ่าน wrapper จึงไปคลาวด์ตามที่ล็อกอินไว้</p>
+            </li>
+            <li>
+              <div class="title">ตรวจว่า settings ไม่ได้ล็อก URL</div>
+              <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>cat ~/.claude/settings.json</pre></div>
+              <p>ต้องไม่มีคีย์ <code>ANTHROPIC_BASE_URL</code> ในบล็อก env</p>
+            </li>
+          </ol>
+          <div class="callout tip">โมเดลในเครื่องยังเปิดอยู่ได้ตอนใช้ <code>claude</code> คลาวด์ มันคนละเส้นทาง ถ้าไม่ได้ใช้ local แล้ว ให้รัน <code>stop-model</code> เพื่อคืน RAM</div>
+        </section>
+
+        <section id="fix">
+          <h2>ปัญหาที่เจอบนเครื่องนี้</h2>
+          <h3>ขึ้นว่า No model is listening</h3>
+          <ol class="steps">
+            <li>รัน <code>llm-status</code></li>
+            <li>ถ้า Model: stopped ให้รัน <code>claude-local qwen35</code> หรือเปิดโมเดลก่อน</li>
+            <li>รอ Ready อย่าเพิ่งเปิด Claude Code ซ้ำตอนยังโหลด</li>
+          </ol>
+          <h3>Model not found / 404</h3>
+          <ol class="steps">
+            <li>รัน <code>claude-local --status</code> ดูว่าชื่อที่ map มีในรายการหรือไม่</li>
+            <li>ถ้าเห็นแต่ชื่อที่มี <code>/</code> ให้แก้ compose ใส่ชื่อสั้น แล้วสตาร์ทใหม่</li>
+            <li>อย่าพิมพ์ <code>claude --model nvidia/Qwen3.6-35B-A3B-NVFP4</code> เครื่องหมายทับทำให้ Claude Code หาไม่เจอ</li>
+          </ol>
+          <h3>Connection refused</h3>
+          <p>พอร์ต 8000 ว่าง โมเดลยังไม่ขึ้น หรือถูก <code>stop-model</code> ไปแล้ว</p>
+          <h3>Tool calls ไม่ทำงาน</h3>
+          <p>สูตรสตูดิโอตอนนี้เปิด auto tool choice แล้ว ถ้าเพิ่มโมเดลใหม่แล้วลืมธงนี้ Claude Code จะคุยได้แต่เรียกเครื่องมือไม่เป็น ดูขั้น <a href="#future">เพิ่มโมเดลใหม่</a></p>
+          <h3>เคยพังกับ Claude Code 2.1.154</h3>
+          <p>รุ่นนั้นส่ง role แปลกใน messages แล้ว vLLM เก่าตอบ 400 เครื่องนี้ใช้ vLLM <strong>0.27.1</strong> และ Claude Code <strong>2.1.233</strong> ชุดนี้ผ่านแพตช์แล้ว ไม่ต้องดาวน์เกรด Claude Code</p>
+          <h3>เผลอใช้ qwen35-start</h3>
+          <p>คนละคำสั่งกับสตูดิโอ อ่านที่ <a href="models.html#twocmds">สองคำสั่งคนละตัว</a> ใช้ <code>start-qwen35</code> หรือ <code>claude-local qwen35</code> อันเดียว</p>
+        </section>
+
+        <div class="pager">
+          <a href="hermes.html"><small>กลับ</small>Hermes</a>
+          <a href="system.html"><small>ถัดไป</small>ระบบเครื่อง</a>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="assets/app.js"></script>
+</body>
+</html>

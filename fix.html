@@ -24,6 +24,7 @@
           <a href="#comfy">เข้า :8188 ไม่ได้</a>
           <a href="#run">กด Run แล้ว error</a>
           <a href="#hermes">Hermes แดชบอร์ด / ตอบ 404</a>
+          <a href="#claude">Claude Code ไม่ยิงโมเดลในเครื่อง</a>
           <a href="#phone">มือถือในบ้านเข้าไม่ได้</a>
         </nav>
       </aside>
@@ -114,6 +115,17 @@
             <li>ส่งข้อความในห้องใหม่ อย่าดูห้องเก่าที่ error ค้าง</li>
           </ol>
           <p>อธิบายครบทุกชั้นอยู่ที่ <a href="models.html#why">โมเดล · เรื่องที่เกิดจริง</a> และ <a href="hermes.html#name">Hermes · ชื่อต้องตรง</a></p>
+        </section>
+
+        <section id="claude">
+          <h2>Claude Code ไม่ยิงโมเดลในเครื่อง</h2>
+          <ol class="steps">
+            <li>ตรวจว่าพิมพ์ <code>claude-local</code> ไม่ใช่แค่ <code>claude</code></li>
+            <li>รัน <code>claude-local --status</code> ต้องเห็นชื่อสั้นที่ไม่มี <code>/</code></li>
+            <li>ถ้า API: down ให้รัน <code>claude-local qwen35</code> แล้วรอ Ready</li>
+            <li>อย่าใส่ <code>ANTHROPIC_BASE_URL</code> ใน <code>~/.claude/settings.json</code></li>
+            <li>เรื่องยาวอยู่ที่ <a href="claude.html">หมวด Claude Code</a></li>
+          </ol>
         </section>
 
         <section id="phone">

@@ -70,6 +70,7 @@
             <div class="term"><dt>ออฟไลน์ <em>offline / air-gapped</em></dt><dd>ทำงานโดยไม่ต้องมีเน็ต ถ้าไฟล์โมเดลมีครบแล้ว</dd><p class="here">คอนเทนเนอร์ vLLM ตั้ง HF_HUB_OFFLINE=1 จะไม่พยายามดาวน์โหลดซ้ำ</p></div>
             <div class="term"><dt>คลาวด์ AI <em>hosted API</em></dt><dd>ส่งคำขอไปเซิร์ฟเวอร์คนอื่น เช่น OpenAI Claude Gemini ต่างจาก Local ที่คำนวณในบ้าน</dd></div>
             <div class="term"><dt>OpenAI-compatible <em>OpenAI API schema</em></dt><dd>รูปแบบคำขอมาตรฐาน /v1/models และ /v1/chat/completions โปรแกรมแชทส่วนใหญ่คุยภาษานี้</dd><p class="here">vLLM บนพอร์ต 8000 เสิร์ฟแบบนี้ Open WebUI และ Hermes ต่อเข้าจุดเดียวกัน</p></div>
+            <div class="term"><dt>Anthropic Messages API</dt><dd>รูปแบบคำขอที่ Claude Code ใช้ จุดหลักคือ /v1/messages ไม่ใช่ /v1/chat/completions</dd><p class="here">vLLM 0.27.1 บนเครื่องนี้พูดภาษานี้ที่พอร์ตเดียวกัน</p></div>
           </div>
         </section>
 
@@ -153,7 +154,9 @@
             <div class="term"><dt>Ollama</dt><dd>โปรแกรมเสิร์ฟที่ใช้ง่าย นิยมกับ GGUF เครื่องนี้ไม่ได้ใช้เป็นตัวหลัก</dd></div>
             <div class="term"><dt>llama.cpp</dt><dd>เอนจินซีพียู/จีพียูเบา สำหรับ GGUF</dd></div>
             <div class="term"><dt>TensorRT-LLM</dt><dd>เอนจินของ NVIDIA เน้นความเร็วสูง ต้องคอมไพล์เอนจินแยก</dd></div>
-            <div class="term"><dt>served-model-name</dt><dd>ชื่อที่ API ประกาศให้คนอื่นเรียก ไม่ใช่ชื่อโฟลเดอร์บนดิสก์</dd><p class="here">Qwen 35B ประกาศทั้งชื่อเต็มและชื่อสั้น</p></div>
+            <div class="term"><dt>served-model-name</dt><dd>ชื่อที่ API ประกาศให้คนอื่นเรียก ไม่ใช่ชื่อโฟลเดอร์บนดิสก์</dd><p class="here">Qwen 35B ประกาศทั้งชื่อเต็มและชื่อสั้น ชื่อสั้นไม่มี / ใช้กับ Claude Code</p></div>
+            <div class="term"><dt>ANTHROPIC_BASE_URL</dt><dd>ที่อยู่ที่ Claude Code ยิง Messages API ไป ค่าเริ่มต้นคือเซิร์ฟเวอร์ Anthropic</dd><p class="here">claude-local ตั้งเป็น http://127.0.0.1:8000 เฉพาะเซสชันนั้น</p></div>
+            <div class="term"><dt>ANTHROPIC_DEFAULT_*_MODEL</dt><dd>remap ชื่องาน opus / sonnet / haiku ข้างใน Claude Code ไปชื่อโมเดลจริง</dd><p class="here">เครื่องนี้เปิดโมเดลได้ทีละตัว จึงชี้ทั้งสามชื่อไปก้อนเดียวกัน</p></div>
             <div class="term"><dt>model id</dt><dd>สตริงในช่อง id ของ /v1/models โปรแกรมยิงชื่อนี้อย่างเดียว ผิดหนึ่งตัวอักษรได้ 404</dd></div>
             <div class="term"><dt>endpoint</dt><dd>ที่อยู่บริการ เช่น http://127.0.0.1:8000/v1</dd></div>
             <div class="term"><dt>base URL</dt><dd>ส่วนต้นของ API ที่โปรแกรมแชทต้องชี้ไป</dd><p class="here">Open WebUI ชี้ http://vllm:8000/v1 ในเครือข่ายด็อกเกอร์</p></div>
@@ -227,6 +230,8 @@
             <div class="term"><dt>channel</dt><dd>ช่องทางคุยภายนอก เช่น Telegram</dd></div>
             <div class="term"><dt>inference.local</dt><dd>ชื่อในกรงที่ชี้กลับมาที่ vLLM บนโฮสต์</dd></div>
             <div class="term"><dt>404 model does not exist</dt><dd>เอเจนต์ยิงชื่อโมเดลที่ API ไม่ได้ประกาศ ไฟล์อาจมีครบแต่ชื่อไม่ตรง</dd></div>
+            <div class="term"><dt>Claude Code</dt><dd>ตัวช่วยเขียนโค้ดในเทอร์มินัลของ Anthropic อ่านไฟล์ แก้โค้ด รันคำสั่งได้</dd><p class="here">เวอร์ชัน 2.1.233 เปิดแบบ local ด้วย claude-local</p></div>
+            <div class="term"><dt>claude-local</dt><dd>สคริปต์สตูดิโอที่ชี้ Claude Code ไป vLLM แล้วอ่านชื่อโมเดลจาก /v1/models</dd><p class="here">ไฟล์จริงอยู่ที่ ~/ai/open-webui/claude-local</p></div>
           </div>
         </section>
 
@@ -292,7 +297,7 @@
         <section id="net">
           <h2>เครือข่ายและพอร์ต</h2>
           <div class="lex">
-            <div class="term"><dt>พอร์ต <em>port</em></dt><dd>ช่องบริการบนเครื่อง คนละโปรแกรมคนละช่อง</dd><p class="here">18473 แชท · 8000 โมเดล · 8188 ภาพ · 18789 เอเจนต์ · 8790 คู่มือ</p></div>
+            <div class="term"><dt>พอร์ต <em>port</em></dt><dd>ช่องบริการบนเครื่อง คนละโปรแกรมคนละช่อง</dd><p class="here">18473 แชท · 8000 โมเดล (แชท/Hermes/Claude Code) · 8188 ภาพ · 18789 เอเจนต์ · 8790 คู่มือ</p></div>
             <div class="term"><dt>127.0.0.1 / localhost</dt><dd>เครื่องนี้เอง จากมือถือตรง ๆ เข้า 127.0.0.1 ของโทรศัพท์ไม่ได้</dd></div>
             <div class="term"><dt>192.168.178.98</dt><dd>ที่อยู่เครื่องนี้ในบ้าน มือถือใน Wi-Fi เดียวกันใช้ไอพีนี้</dd></div>
             <div class="term"><dt>0.0.0.0</dt><dd>ฟังทุกอินเทอร์เฟซ เครื่องอื่นในบ้านเข้าได้ถ้าไฟร์วอลล์ยอม</dd></div>
@@ -313,6 +318,8 @@
             <div class="term"><dt>start-webui / stop-webui</dt><dd>เปิดปิดเฉพาะหน้าแชท ไม่แตะโมเดล</dd></div>
             <div class="term"><dt>llm-status</dt><dd>ดูว่าเว็บกับโมเดลเปิดอยู่และ API ประกาศชื่ออะไร</dd></div>
             <div class="term"><dt>start-guide / stop-guide</dt><dd>เปิดปิดเว็บคู่มือพอร์ต 8790</dd></div>
+            <div class="term"><dt>claude-local / start-claude</dt><dd>เปิด Claude Code กับโมเดลที่กำลังรัน หรือส่งชื่อ qwen35 / qwen27 / nemotron เพื่อสลับก่อน</dd></div>
+            <div class="term"><dt>claude</dt><dd>คำสั่งดิบของ Claude Code ไม่ผ่าน wrapper จึงไป Anthropic ถ้าไม่ได้ตั้ง URL เอง</dd></div>
             <div class="term"><dt>~/ai/comfyui/scripts/start.sh</dt><dd>เปิด ComfyUI โดยไม่แตะกล่องแชท</dd></div>
             <div class="term"><dt>nemoclaw hermes status / doctor / recover</dt><dd>ดูสุขภาพ ซ่อมเกตเวย์ และพิมพ์ URL แดชบอร์ดของเอเจนต์</dd></div>
             <div class="term"><dt>PATH</dt><dd>ลำดับโฟลเดอร์ที่เชลล์เดินหาคำสั่ง</dd></div>

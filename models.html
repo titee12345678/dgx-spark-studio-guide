@@ -93,10 +93,13 @@
                 <tr><td><code>stop-model</code></td><td>ปิดโมเดล คืน RAM ประมาณ 100 GB</td><td>ไม่กี่วินาที</td></tr>
                 <tr><td><code>start-webui</code></td><td>เปิดหน้าเว็บ :18473</td><td>ไม่กี่วินาที</td></tr>
                 <tr><td><code>stop-webui</code></td><td>ปิดหน้าเว็บ ประวัติแชทยังอยู่</td><td>ทันที</td></tr>
+                <tr><td><code>claude-local</code></td><td>เปิด Claude Code ชี้โมเดลที่กำลังรันบน :8000</td><td>ทันทีถ้าโมเดล Ready แล้ว</td></tr>
+                <tr><td><code>claude-local qwen35</code></td><td>สลับไป Qwen 35B แล้วเปิด Claude Code</td><td>2–6 นาทีถ้าต้องโหลดใหม่</td></tr>
               </tbody>
             </table>
           </div>
           <div class="callout ok">คำสั่งสลับโมเดลจะปิดตัวเก่าให้อัตโนมัติ</div>
+          <div class="callout tip">จะใช้โมเดลเดียวกันกับ Claude Code ในเทอร์มินัล ให้ไปหมวด <a href="claude.html">Claude Code</a> แล้วพิมพ์ <code>claude-local</code> อย่าพิมพ์แค่ <code>claude</code></div>
         </section>
 
         <section id="stop">
@@ -347,7 +350,7 @@ exec /home/dgxspark/ai/open-webui/llm start qwen35</div>
             <div class="arrow">↓ โปรแกรมแชทส่งชื่อนี้กลับไปในคำขอ /v1/chat/completions</div>
             <div class="box">
               <b>ชั้น 3 · ชื่อที่โปรแกรมยิง</b>
-              Hermes ยึดชื่อเต็ม <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> อย่างเดียว Open WebUI เลือกชื่อไหนในรายการก็ได้
+              Hermes ยึดชื่อเต็ม <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> อย่างเดียว Open WebUI เลือกชื่อไหนในรายการก็ได้ Claude Code ใช้ได้เฉพาะชื่อที่ไม่มี <code>/</code> คือ <code>Qwen3.6-35B</code> ดูหมวด <a href="claude.html">Claude Code</a>
             </div>
           </div>
 

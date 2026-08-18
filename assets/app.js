@@ -5,6 +5,7 @@ const NAV = [
   ["models.html", "โมเดล", "i-brain"],
   ["comfy.html", "ภาพ/วิดีโอ", "i-media"],
   ["hermes.html", "Hermes", "i-agent"],
+  ["claude.html", "Claude", "i-claude"],
   ["system.html", "ระบบ", "i-sys"],
   ["fix.html", "แก้ปัญหา", "i-fix"],
   ["terms.html", "ศัพท์", "i-book"],
@@ -21,7 +22,7 @@ const SECTION_ICON = {
   what: "i-split", now: "i-pin", dash: "i-dash", talk: "i-chat", sessions: "i-folder",
   cli: "i-term", model: "i-link", name: "i-tag", fix: "i-fix",
   ops: "i-sys", ram: "i-ram", dont: "i-ban",
-  nomodel: "i-empty", stuck: "i-clock", comfy: "i-media", phone: "i-phone", hermes: "i-agent",
+  nomodel: "i-empty", stuck: "i-clock", comfy: "i-media", phone: "i-phone", hermes: "i-agent", claude: "i-claude",
   first: "i-image", wire: "i-wire", t2i: "i-prompt", i2i: "i-editimg",
   video: "i-film", i2v: "i-frames", upscale: "i-expand", save: "i-save",
   nodes: "i-wire", catalog: "i-download",
@@ -55,10 +56,15 @@ const PAGE_ICONS = {
     talk: "i-chat", sessions: "i-folder", cli: "i-term", model: "i-link",
     name: "i-tag", fix: "i-fix",
   },
+  "claude.html": {
+    what: "i-split", now: "i-pin", why: "i-plug", start: "i-bolt",
+    launch: "i-term", check: "i-checklist", switch: "i-split",
+    future: "i-chip", env: "i-tag", cloud: "i-globe", fix: "i-fix",
+  },
   "system.html": { ops: "i-sys", ram: "i-ram", dont: "i-ban" },
   "fix.html": {
     webui: "i-browser", nomodel: "i-empty", stuck: "i-clock", ram: "i-ram",
-    comfy: "i-media", run: "i-play", hermes: "i-agent", phone: "i-phone",
+    comfy: "i-media", run: "i-play", hermes: "i-agent", claude: "i-claude", phone: "i-phone",
   },
   "terms.html": {
     how: "i-book", base: "i-studio", hw: "i-chip", llm: "i-brain", files: "i-folder",
@@ -69,6 +75,15 @@ const PAGE_ICONS = {
 };
 
 const PAGE_REMEMBER = {
+  "claude.html": {
+    what: "จำง่าย: แชทใช้เว็บ · Hermes อยู่ในกรง · เขียนโค้ดใช้ claude-local",
+    now: "จำง่าย: claude 2.1.233 พูดกับ vLLM 0.27.1 ที่พอร์ต 8000",
+    why: "จำง่าย: อย่าใส่ ANTHROPIC_BASE_URL ใน settings ทั้งเครื่อง",
+    start: "จำง่าย: เปิดโมเดลก่อน หรือพิมพ์ claude-local qwen35 อันเดียว",
+    check: "จำง่าย: --status ต้องเห็นชื่อสั้นไม่มี /",
+    env: "จำง่าย: opus sonnet haiku ชี้ก้อนเดียวกัน เพราะเปิดได้ทีละตัว",
+    fix: "จำง่าย: connection refused = โมเดลยังไม่ขึ้น",
+  },
   "comfy.html": {
     what: "จำง่าย: ComfyUI คนละระบบกับแชท ภาพนิ่งคนละกราฟกับวิดีโอ",
     now: "จำง่าย: เว็บเปิดได้แล้ว แต่โฟลเดอร์โมเดลภาพยังว่าง สร้างจริงยังไม่ได้",
@@ -100,6 +115,10 @@ const REMEMBER = {
   what: "จำง่าย: NemoClaw ถือกรง · Hermes คือเอเจนต์ในกรง",
   model: "จำง่าย: Hermes ไม่โหลดโมเดลเอง มันยิงไปพอร์ต 8000",
   name: "จำง่าย: ชื่อต้องตรงทุกตัวอักษร ไม่ตรง = 404",
+  launch: "จำง่าย: พิมพ์ claude-local ไม่ใช่ claude",
+  switch: "จำง่าย: ออกจากเซสชันก่อน แล้ว claude-local ชื่อใหม่",
+  future: "จำง่าย: ใส่ชื่อสั้นไม่มี / แล้ว start-* ใหม่ wrapper อ่านเอง",
+  cloud: "จำง่าย: claude เปล่า ๆ ยังไป Anthropic",
   first: "จำง่าย: กราฟเริ่มต้นคือ Z-Image-Turbo ยังขาดไฟล์สองก้อน",
   wire: "จำง่าย: ต่อจุดสีเดียวกัน ม่วงโมเดล เหลืองข้อความ ชมพู latent ฟ้าภาพ",
   t2i: "จำง่าย: Templates → Image → เขียนพรอมต์ → Run เมื่องานไม่มีกรอบแดง",
@@ -305,8 +324,14 @@ const BANDS = {
     ["ใช้งาน", "agent", ["talk", "sessions", "cli"]],
     ["โมเดลและปัญหา", "fix", ["model", "name", "fix"]],
   ],
+  "claude.html": [
+    ["รู้จัก Claude Code", "agent", ["what", "now", "why"]],
+    ["ลงมือ", "file", ["start", "launch", "check"]],
+    ["สลับและเพิ่มโมเดล", "know", ["switch", "future", "env", "cloud"]],
+    ["ปัญหา", "fix", ["fix"]],
+  ],
   "system.html": [["ระบบเครื่อง", "care", ["ops", "ram", "dont"]]],
-  "fix.html": [["แก้ตามอาการ", "fix", ["webui", "nomodel", "stuck", "ram", "comfy", "run", "hermes", "phone"]]],
+  "fix.html": [["แก้ตามอาการ", "fix", ["webui", "nomodel", "stuck", "ram", "comfy", "run", "hermes", "claude", "phone"]]],
   "terms.html": [
     ["อ่านก่อน", "know", ["how"]],
     ["พื้นฐาน", "know", ["base", "hw"]],

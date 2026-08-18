@@ -290,7 +290,7 @@ function decorateSections() {
   document.querySelectorAll(".tile[href]").forEach((tile) => {
     const href = tile.getAttribute("href");
     const hit = NAV.find(([h]) => h === href);
-    if (hit && !tile.querySelector(":scope > .ico")) {
+    if (hit && !tile.querySelector(".ico")) {
       tile.insertAdjacentHTML("afterbegin", ico(hit[2]));
     }
   });
@@ -410,7 +410,7 @@ function enableLightbox() {
     if (e.key === "Escape") close();
   });
 
-  document.querySelectorAll("figure.shot img, figure.look img, img.preview").forEach((el) => {
+  document.querySelectorAll("figure.shot img, figure.look img").forEach((el) => {
     const fig = el.closest("figure");
     if (fig && !fig.querySelector(".zoom-hint")) {
       const hint = document.createElement("span");

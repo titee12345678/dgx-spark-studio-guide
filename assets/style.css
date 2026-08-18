@@ -128,6 +128,7 @@ kbd {
   min-height: calc(100dvh - var(--top));
 }
 .page.hub { grid-template-columns: 1fr; }
+.page.hub .hero { padding-bottom: .85rem; margin-bottom: .85rem; }
 
 .side {
   border-right: 1px solid var(--line);
@@ -176,7 +177,7 @@ kbd {
   padding: 1.5rem clamp(1.2rem, 2.4vw, 2.6rem) 4rem;
 }
 .page:not(.hub) .main > * { max-width: none; width: 100%; }
-.page.hub .main { padding: 1.6rem 4vw 3.5rem; max-width: 1360px; margin: 0 auto; }
+.page.hub .main { padding: 1rem 2vw 2rem; max-width: none; width: 100%; margin: 0; }
 
 .hero {
   border: 0;
@@ -231,7 +232,39 @@ kbd {
   color: var(--muted);
   font-size: .88rem;
 }
-.page.hub .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.page.hub .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.page.hub .tile {
+  padding: 0;
+  min-height: 0;
+  background: #0c100b;
+}
+.page.hub .tile .preview {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: cover;
+  background: #070907;
+}
+.page.hub .tile .body {
+  padding: .85rem 1.05rem 1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 8.6rem;
+}
+.page.hub .tile h2 { margin: .2rem 0 .3rem; }
+.page.hub .tile p { flex: 1; font-size: .95rem; }
+.page.hub .tile .go { margin-top: .7rem; }
+.page.hub .tile > .ico {
+  position: absolute;
+  top: .7rem;
+  left: .7rem;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  background: rgba(8, 16, 4, .72);
+  backdrop-filter: blur(8px);
+}
 
 .tiles {
   display: grid;

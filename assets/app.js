@@ -57,9 +57,8 @@ const PAGE_ICONS = {
     name: "i-tag", fix: "i-fix",
   },
   "claude.html": {
-    what: "i-split", now: "i-pin", why: "i-plug", start: "i-bolt",
-    launch: "i-term", check: "i-checklist", switch: "i-split",
-    future: "i-chip", env: "i-tag", cloud: "i-globe", fix: "i-fix",
+    pick: "i-split", pro: "i-key", quota: "i-clock", local: "i-chip",
+    switch: "i-split", more: "i-list", fix: "i-fix",
   },
   "system.html": { ops: "i-sys", ram: "i-ram", dont: "i-ban" },
   "fix.html": {
@@ -76,13 +75,13 @@ const PAGE_ICONS = {
 
 const PAGE_REMEMBER = {
   "claude.html": {
-    what: "จำง่าย: แชทใช้เว็บ · Hermes อยู่ในกรง · เขียนโค้ดใช้ claude-local",
-    now: "จำง่าย: claude 2.1.233 พูดกับ vLLM 0.27.1 ที่พอร์ต 8000",
-    why: "จำง่าย: อย่าใส่ ANTHROPIC_BASE_URL ใน settings ทั้งเครื่อง",
-    start: "จำง่าย: เปิดโมเดลก่อน หรือพิมพ์ claude-local qwen35 อันเดียว",
-    check: "จำง่าย: --status ต้องเห็นชื่อสั้นไม่มี /",
-    env: "จำง่าย: opus sonnet haiku ชี้ก้อนเดียวกัน เพราะเปิดได้ทีละตัว",
-    fix: "จำง่าย: connection refused = โมเดลยังไม่ขึ้น",
+    pick: "จำง่าย: ล็อกอินใช้ pro · โควตาหมดค่อย local · คนละเซสชัน",
+    pro: "จำง่าย: claude-use login แล้ว claude-use pro",
+    quota: "จำง่าย: /usage → /exit → claude-use local ไม่มีสวิตช์ลับ",
+    local: "จำง่าย: claude-use local qwen35",
+    switch: "จำง่าย: ออกก่อนทุกครั้ง แล้วค่อยสลับเส้นทาง",
+    more: "จำง่าย: fallback-model ไม่ได้พาไป Qwen",
+    fix: "จำง่าย: Not signed in = ยังไม่ได้ login",
   },
   "comfy.html": {
     what: "จำง่าย: ComfyUI คนละระบบกับแชท ภาพนิ่งคนละกราฟกับวิดีโอ",
@@ -325,10 +324,9 @@ const BANDS = {
     ["โมเดลและปัญหา", "fix", ["model", "name", "fix"]],
   ],
   "claude.html": [
-    ["รู้จัก Claude Code", "agent", ["what", "now", "why"]],
-    ["ลงมือ", "file", ["start", "launch", "check"]],
-    ["สลับและเพิ่มโมเดล", "know", ["switch", "future", "env", "cloud"]],
-    ["ปัญหา", "fix", ["fix"]],
+    ["เลือกเส้นทาง", "know", ["pick"]],
+    ["ลงมือ", "file", ["pro", "quota", "local"]],
+    ["สลับและอื่น", "care", ["switch", "more", "fix"]],
   ],
   "system.html": [["ระบบเครื่อง", "care", ["ops", "ram", "dont"]]],
   "fix.html": [["แก้ตามอาการ", "fix", ["webui", "nomodel", "stuck", "ram", "comfy", "run", "hermes", "claude", "phone"]]],

@@ -120,9 +120,10 @@
         <section id="claude">
           <h2>Claude Code ไม่ยิงโมเดลในเครื่อง</h2>
           <ol class="steps">
-            <li>ตรวจว่าพิมพ์ <code>claude-local</code> ไม่ใช่แค่ <code>claude</code></li>
-            <li>รัน <code>claude-local --status</code> ต้องเห็นชื่อสั้นที่ไม่มี <code>/</code></li>
-            <li>ถ้า API: down ให้รัน <code>claude-local qwen35</code> แล้วรอ Ready</li>
+            <li>รัน <code>claude-use status</code> แยกว่าจะใช้ Pro หรือ local</li>
+            <li>อยากได้คลาวด์: <code>claude-use login</code> แล้ว <code>claude-use pro</code></li>
+            <li>โควตาหมด: ออกจากเซสชัน แล้ว <code>claude-use local</code> ไม่มีสวิตช์อัตโนมัติ</li>
+            <li>local ไม่ขึ้น: <code>claude-use local qwen35</code> ต้องเห็นชื่อสั้นไม่มี <code>/</code></li>
             <li>อย่าใส่ <code>ANTHROPIC_BASE_URL</code> ใน <code>~/.claude/settings.json</code></li>
             <li>เรื่องยาวอยู่ที่ <a href="claude.html">หมวด Claude Code</a></li>
           </ol>

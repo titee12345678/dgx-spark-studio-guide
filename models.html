@@ -52,21 +52,21 @@
                 <tr>
                   <td>Nemotron-3.5-Lightning</td>
                   <td>nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4</td>
-                  <td>21 GB + DSpark 1.3 GB</td>
-                  <td>แชท เขียนโค้ด งานเอเจนต์ บริบทยาว</td>
+                  <td>21 GB + DSpark 1.3 GB · จอง 60% · บริบท 500k</td>
+                  <td>แชท เขียนโค้ด งานเอเจนต์ บริบทยาวถึง 500k</td>
                   <td><code>start-nemotron</code></td>
                 </tr>
                 <tr>
                   <td>Qwen3.6-27B</td>
                   <td>nvidia/Qwen3.6-27B-NVFP4</td>
-                  <td>21 GB</td>
+                  <td>21 GB · จอง 50%</td>
                   <td>แชททั่วไป สูตรนี้เปิดแบบข้อความอย่างเดียว</td>
                   <td><code>start-qwen27</code></td>
                 </tr>
                 <tr>
                   <td>nvidia/Qwen3.6-35B-A3B-NVFP4 และ Qwen3.6-35B</td>
                   <td>nvidia/Qwen3.6-35B-A3B-NVFP4</td>
-                  <td>22 GB ไฟล์ · จอง RAM ประมาณ 40%</td>
+                  <td>22 GB ไฟล์ · จอง RAM 35%</td>
                   <td>งานหนักขึ้น แบบ MoE ใช้กับ Hermes ได้</td>
                   <td><code>start-qwen35</code></td>
                 </tr>
@@ -87,9 +87,9 @@
               <thead><tr><th>คำสั่ง</th><th>ผลลัพธ์</th><th>ใช้เวลานานไหม</th></tr></thead>
               <tbody>
                 <tr><td><code>llm-status</code></td><td>บอกว่าเว็บกับโมเดลเปิดอยู่หรือไม่</td><td>ทันที</td></tr>
-                <tr><td><code>start-nemotron</code></td><td>ปิดโมเดลอื่น แล้วเปิด Nemotron</td><td>2–4 นาที</td></tr>
-                <tr><td><code>start-qwen27</code></td><td>ปิดโมเดลอื่น แล้วเปิด Qwen 27B</td><td>2–4 นาที</td></tr>
-                <tr><td><code>start-qwen35</code></td><td>ปิดโมเดลอื่น แล้วเปิด Qwen 35B ชื่อเต็มที่ Hermes ใช้ จอง RAM 40%</td><td>2–6 นาที</td></tr>
+                <tr><td><code>start-nemotron</code></td><td>ปิดโมเดลอื่น แล้วเปิด Nemotron จอง 60% บริบท 500k</td><td>2–4 นาที</td></tr>
+                <tr><td><code>start-qwen27</code></td><td>ปิดโมเดลอื่น แล้วเปิด Qwen 27B จอง 50%</td><td>2–4 นาที</td></tr>
+                <tr><td><code>start-qwen35</code></td><td>ปิดโมเดลอื่น แล้วเปิด Qwen 35B ชื่อเต็มที่ Hermes ใช้ จอง RAM 35%</td><td>2–6 นาที</td></tr>
                 <tr><td><code>stop-model</code></td><td>ปิดโมเดล คืน RAM ประมาณ 100 GB</td><td>ไม่กี่วินาที</td></tr>
                 <tr><td><code>start-webui</code></td><td>เปิดหน้าเว็บ :18473</td><td>ไม่กี่วินาที</td></tr>
                 <tr><td><code>stop-webui</code></td><td>ปิดหน้าเว็บ ประวัติแชทยังอยู่</td><td>ทันที</td></tr>
@@ -188,7 +188,7 @@
             <article class="viz-card">
               <span class="k">เรื่องที่ 3</span>
               <h3>จอง RAM</h3>
-              <p>สูตรเก่ากัน 82% สูตรใหม่กัน 40% ไฟล์โมเดลไม่ได้โต</p>
+              <p>สูตรเก่ากัน 82% สูตรปัจจุบันของ Qwen 35B กัน 35% ไฟล์โมเดลไม่ได้โต</p>
             </article>
           </div>
           <div class="callout warn">สิ่งที่ <em>ไม่ได้</em> พัง: ไฟล์โมเดลบนดิสก์ไม่หาย Hermes แดชบอร์ดไม่พัง Open WebUI ยังคุยได้ด้วยชื่อสั้น ปัญหาอยู่ที่ <strong>ชื่อที่เรียก</strong> กับ <strong>สูตรจอง RAM</strong></div>
@@ -368,8 +368,8 @@ Qwen3.6-35B</div>
           <p>ตรวจของจริงจากคอนเทนเนอร์ที่กำลังรัน</p>
           <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker inspect vllm-qwen35 --format '{{range .Config.Cmd}}{{println .}}{{end}}'</pre></div>
           <figure class="shot">
-            <img src="assets/shots/term-inspect-cmd.png" alt="docker inspect แสดง served-model-name สองชื่อและ utilization 0.40">
-            <figcaption>ผลจริง: ต้องเห็น <code>--served-model-name</code> ตามด้วยชื่อเต็มแล้วชื่อสั้น และ <code>--gpu-memory-utilization</code> เป็น <code>0.40</code></figcaption>
+            <img src="assets/shots/term-inspect-cmd.png" alt="docker inspect แสดง served-model-name สองชื่อและ utilization">
+            <figcaption>ผลจริง: ต้องเห็น <code>--served-model-name</code> ตามด้วยชื่อเต็มแล้วชื่อสั้น และ <code>--gpu-memory-utilization</code> เป็น <code>0.35</code></figcaption>
           </figure>
 
           <h3>ชั้น 3 Hermes ยิงชื่อเต็มเท่านั้น</h3>
@@ -424,8 +424,8 @@ Qwen3.6-35B</div>
             <div class="legend">available เหลือไม่กี่ GB เครื่องแน่น ทั้งที่ไฟล์โมเดลยัง 22 GB</div>
           </div>
           <div class="bar">
-            <div class="label"><span>สูตรตอนนี้ 0.40</span><span>กันไว้ ~48 / 121 GiB</span></div>
-            <div class="track"><div class="fill" style="width:40%"></div></div>
+            <div class="label"><span>สูตรตอนนี้ 0.35</span><span>กันไว้ ~42 / 121 GiB</span></div>
+            <div class="track"><div class="fill" style="width:35%"></div></div>
             <div class="legend">เหลือที่ให้เบราว์เซอร์ Open WebUI Hermes และระบบ</div>
           </div>
 
@@ -436,14 +436,14 @@ Qwen3.6-35B</div>
           <p>ค่า <code>--gpu-memory-utilization</code> บอก vLLM ว่าให้กันสัดส่วนเท่าไรของหน่วยความจำที่มองเห็น ไว้ให้น้ำหนักโมเดลบวก KV cache</p>
           <div class="eq">ของเครื่องนี้ประมาณ 121 GiB
 สูตรเก่า 0.82 × 121 ≈ 99 GiB ถูกกันไว้ตั้งแต่ยังไม่ได้คุย
-สูตร Hermes / สูตรใหม่ 0.40 × 121 ≈ 48 GiB</div>
+สูตร Qwen 35B ตอนนี้ 0.35 × 121 ≈ 42 GiB</div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>สูตร</th><th>utilization</th><th>กันไว้ประมาณ</th><th>ผลที่ตาเห็น</th></tr></thead>
               <tbody>
                 <tr><td><code>start-qwen35</code> แบบเก่า</td><td>0.82</td><td>~99–100 GiB จาก 121</td><td>available เหลือไม่กี่ GB เครื่องแน่น</td></tr>
-                <tr><td><code>qwen35-start</code></td><td>0.40</td><td>~48 GiB</td><td>เหลือ RAM ใช้เบราว์เซอร์และโปรแกรมอื่น</td></tr>
-                <tr><td><code>start-qwen35</code> ตอนนี้</td><td>0.40</td><td>~48 GiB</td><td>เท่าสูตรที่ Hermes ใช้ได้</td></tr>
+                <tr><td><code>qwen35-start</code></td><td>0.40</td><td>~48 GiB</td><td>สูตรเก่าของ Hermes ตอนจัดชื่อ</td></tr>
+                <tr><td><code>start-qwen35</code> ตอนนี้</td><td>0.35</td><td>~42 GiB</td><td>ลดจาก 0.40 เพราะบริบทในสูตรนี้ 128k ไม่ใช่ 256k</td></tr>
               </tbody>
             </table>
           </div>
@@ -460,16 +460,16 @@ Qwen3.6-35B</div>
               <p><code>free</code> คือที่ว่างเปล่าจริง ๆ ส่วนที่ระบบเก็บแคชไฟล์จะโชว์ใน <code>buff/cache</code> และยังคืนให้โปรแกรมได้ คอลัมน์ที่บอกว่า “ยังเปิดอย่างอื่นได้อีกไหม” คือ <code>available</code></p>
             </li>
             <li>
-              <div class="title">ตัวเลขปกติหลังเปิด Qwen 35B สูตร 40%</div>
-              <p>วันที่ 17 สิงหาคม 2026 เครื่องนี้ใช้ไป 61 GiB เหลือ available 59 GiB มีแคชอีกประมาณ 30 GiB</p>
+              <div class="title">ตัวเลขปกติหลังเปิด Qwen 35B สูตร 35%</div>
+              <p>สูตร 35% กันไว้ประมาณ 42 GiB ระบบทั้งก้อนมักเหลือ available หลายสิบ GiB ถ้าเหลือไม่กี่ GB ให้สงสัยว่ายังใช้สูตร 0.82</p>
             </li>
           </ol>
           <figure class="shot">
             <img src="assets/shots/term-free-now.png" alt="free -h หลังเปิด Qwen 35B สูตร 40 เปอร์เซ็นต์">
-            <figcaption>ผลจริงตอน <code>vllm-qwen35</code> เปิดอยู่: used 61Gi available 59Gi ถ้า available เหลือไม่กี่ GB ทั้งที่เปิดแค่ Qwen 35B ให้สงสัยว่ายังใช้สูตร 0.82</figcaption>
+            <figcaption>ผลจริงหลังลดเป็น 0.35: used 59Gi available 62Gi ถ้า available เหลือไม่กี่ GB ทั้งที่เปิดแค่ Qwen 35B ให้สงสัยว่ายังใช้สูตร 0.82</figcaption>
           </figure>
-          <p>เลข 61 GiB ไม่ได้แปลว่าโมเดลกินคนเดียว ในนั้นมี Open WebUI, ComfyUI, กรง Hermes, ระบบ และแคชด้วย ส่วนที่ vLLM กันไว้ตามสูตร 40% ประมาณ 48 GiB</p>
-          <div class="callout tip">อยากคืน RAM ให้รัน <code>stop-model</code> อย่าไปปิดแท็บเบราว์เซอร์อย่างเดียว แท็บไม่ใช่ตัวที่จอง 48–100 GB</div>
+          <p>เลข used ไม่ได้แปลว่าโมเดลกินคนเดียว ในนั้นมี Open WebUI, ComfyUI, กรง Hermes, ระบบ และแคชด้วย ส่วนที่ vLLM กันไว้ตามสูตร 35% ประมาณ 42 GiB</p>
+          <div class="callout tip">อยากคืน RAM ให้รัน <code>stop-model</code> อย่าไปปิดแท็บเบราว์เซอร์อย่างเดียว แท็บไม่ใช่ตัวที่จอง 42–100 GB</div>
         </section>
 
         <section id="fixed">
@@ -480,7 +480,7 @@ Qwen3.6-35B</div>
               <thead><tr><th>จุด</th><th>ก่อนแก้</th><th>หลังแก้</th></tr></thead>
               <tbody>
                 <tr><td>ชื่อที่เสิร์ฟ</td><td>แค่ <code>Qwen3.6-35B</code></td><td>ทั้ง <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> และ <code>Qwen3.6-35B</code></td></tr>
-                <tr><td>จอง RAM</td><td>0.82 ≈ 100 GB</td><td>0.40 ≈ 48 GB</td></tr>
+                <tr><td>จอง RAM</td><td>0.82 ≈ 100 GB</td><td>0.35 ≈ 42 GB (จาก 0.40 รอบแก้ Hermes)</td></tr>
                 <tr><td>ปิดสูตรเก่า</td><td>ไม่ปิด <code>nemoclaw-vllm</code></td><td>ปิดทั้ง <code>nemoclaw-vllm</code> และ <code>qwen36-27b</code></td></tr>
                 <tr><td>รอ Ready</td><td>บางรอบสั้นเกิน รอบคอมไพล์เลยดูเหมือนค้าง</td><td>รอได้ถึง 720 วินาที</td></tr>
                 <tr><td>Hermes</td><td>404 ชื่อไม่ตรง</td><td>Inference healthy</td></tr>
@@ -491,7 +491,7 @@ Qwen3.6-35B</div>
           <ul>
             <li>คอนเทนเนอร์โมเดล: <code>vllm-qwen35</code> Up</li>
             <li>API: <code>nvidia/Qwen3.6-35B-A3B-NVFP4</code> และ <code>Qwen3.6-35B</code></li>
-            <li>RAM: used ≈ 61 GiB · available ≈ 59 GiB</li>
+            <li>RAM หลังลดสูตร: used ≈ 59 GiB · available ≈ 62 GiB (Qwen 35B ที่ 0.35)</li>
             <li>Hermes: Inference (vllm backend) healthy</li>
             <li><code>nemoclaw-vllm</code> ไม่ได้รันอยู่</li>
           </ul>
@@ -583,12 +583,12 @@ docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'</pre></div>
             <li>
               <div class="title">ยืนยันสูตรในคอนเทนเนอร์</div>
               <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>docker inspect vllm-qwen35 --format '{{range .Config.Cmd}}{{println .}}{{end}}'</pre></div>
-              <p>ต้องเห็น <code>--gpu-memory-utilization</code> เป็น <code>0.40</code> และ <code>--served-model-name</code> ตามด้วยชื่อเต็ม</p>
+              <p>ต้องเห็น <code>--gpu-memory-utilization</code> เป็น <code>0.35</code> และ <code>--served-model-name</code> ตามด้วยชื่อเต็ม</p>
             </li>
             <li>
               <div class="title">ดู RAM</div>
               <div class="prewrap"><button class="copy" data-copy>คัดลอก</button><pre>free -h</pre></div>
-              <p>สูตร 40% ทั้งระบบมักใช้ราว 60 GiB และยังเหลือ available หลายสิบ GiB ถ้า available เหลือไม่กี่ GB ทั้งที่เพิ่งเปิด Qwen 35B อย่างเดียว ให้สงสัยว่ายังใช้สูตร 0.82</p>
+              <p>สูตร 35% ทั้งระบบมักเหลือ available หลายสิบ GiB ถ้า available เหลือไม่กี่ GB ทั้งที่เพิ่งเปิด Qwen 35B อย่างเดียว ให้สงสัยว่ายังใช้สูตร 0.82</p>
             </li>
             <li>
               <div class="title">ถาม Hermes ว่าเห็นโมเดลหรือยัง</div>
@@ -664,9 +664,10 @@ docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'</pre></div>
           </div>
           <ul>
             <li>น้ำหนักโมเดลบนดิสก์ประมาณ 22 GB</li>
-            <li>Qwen 35B สูตรปัจจุบันกันรวมประมาณ 40% ของเครื่อง (~48 GiB) เหลือที่ให้ระบบ เบราว์เซอร์ Open WebUI และ Hermes</li>
+            <li>Qwen 35B สูตรปัจจุบันกันรวมประมาณ 35% ของเครื่อง (~42 GiB)</li>
+            <li>Qwen 27B กัน 50% (~61 GiB) ตามสูตรทางการบน Spark ไม่ใช่ 82%</li>
+            <li>Nemotron กัน 60% (~73 GiB) ที่หน้าต่าง 500k ไม่ใช่ 1M ของทางการ</li>
             <li>ถ้าเผลอตั้ง utilization เป็น 0.82 จะกันเกือบ 100 GiB ทั้งที่น้ำหนักโมเดลเท่าเดิม นี่คืออาการ “RAM สูงผิดปกติ” ของสูตรเก่า</li>
-            <li>Nemotron และ Qwen 27B บนเครื่องนี้ยังใช้ 0.82 เพราะสูตรนั้นออกแบบมาให้บริบทยาว เปิดได้ทีละตัวเหมือนเดิม</li>
           </ul>
           <p>อยากคืน RAM ให้รัน <code>stop-model</code> ไม่ใช่ไปปิดแท็บเบราว์เซอร์อย่างเดียว ปิดแท็บแล้วโมเดลยังจองที่อยู่</p>
         </section>

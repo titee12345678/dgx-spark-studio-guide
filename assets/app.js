@@ -107,7 +107,7 @@ const REMEMBER = {
   path: "จำง่าย: พิมพ์ start- ก่อน แล้วค่อยกด Tab",
   inside: "จำง่าย: start- ปิดของเก่าทั้งชุด · qwen35-start ปลุกกล่องเก่า",
   names: "จำง่าย: ไฟล์ ≠ ชื่อที่เสิร์ฟ ≠ ชื่อที่ Hermes ยิง",
-  ramwhy: "จำง่าย: ดู available ไม่ใช่ used · 0.40 ไม่ใช่ 0.82",
+  ramwhy: "จำง่าย: ดู available ไม่ใช่ used · Qwen35=0.35 Qwen27=0.50 Nemotron=0.60",
   fixed: "จำง่าย: วันนี้ใช้ start-qwen35 อันเดียว ทั้งแชทและ Hermes",
   qwen35: "จำง่าย: พิมพ์ start-qwen35 แล้วรอ Ready จนเห็นชื่อเต็ม",
   verify35: "จำง่าย: API มีชื่อเต็ม + Hermes healthy + แชทตอบได้",

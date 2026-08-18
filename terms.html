@@ -83,7 +83,7 @@
             <div class="term"><dt>RAM ที่ใช้ <em>used</em></dt><dd>คอลัมน์ใน free -h ที่ถูกจองแล้ว รวมแคชของระบบด้วย อย่าดูแค่ช่องนี้</dd></div>
             <div class="term"><dt>RAM ที่ใช้ได้ <em>available</em></dt><dd>ตัวเลขที่บอกว่าเปิดโปรแกรมอื่นได้อีกเท่าไร รวมส่วนที่ระบบยอมคืนจากแคช</dd><p class="here">อ่านคอลัมน์นี้หลังเปิดโมเดล</p></div>
             <div class="term"><dt>บัฟเฟอร์และแคช <em>buff/cache</em></dt><dd>ลินุกซ์เก็บไฟล์ที่เพิ่งอ่านไว้ในแรม ดูเหมือนเต็ม แต่คืนให้โปรแกรมได้เมื่อต้องการ</dd></div>
-            <div class="term"><dt>การจองล่วงหน้า <em>reservation / gpu-memory-utilization</em></dt><dd>vLLM กันสัดส่วนหน่วยความจำตั้งแต่สตาร์ท สำหรับน้ำหนักบวก KV cache ไม่ได้รอให้คุยยาวแล้วค่อยขอ</dd><p class="here">Nemotron/Qwen27 ใช้ 0.82 Qwen35 ใช้ 0.40</p></div>
+            <div class="term"><dt>การจองล่วงหน้า <em>reservation / gpu-memory-utilization</em></dt><dd>vLLM กันสัดส่วนหน่วยความจำตั้งแต่สตาร์ท สำหรับน้ำหนักบวก KV cache ไม่ได้รอให้คุยยาวแล้วค่อยขอ</dd><p class="here">Qwen35 ใช้ 0.35 · Qwen27 ใช้ 0.50 · Nemotron ใช้ 0.60 ที่บริบท 500k</p></div>
             <div class="term"><dt>GiB / GB</dt><dd>GiB คูณ 1024, GB คูณ 1000 เครื่องนี้โชว์ GiB ใน free -h ประมาณ 121</dd></div>
             <div class="term"><dt>CUDA</dt><dd>ชุดคำสั่งให้โปรแกรมใช้จีพียู NVIDIA ได้ ถ้า CUDA ไม่ขึ้น โมเดลจะช้าหรือไม่ขึ้นเลย</dd></div>
             <div class="term"><dt>Tensor Core</dt><dd>วงจรในจีพียู NVIDIA สำหรับคูณเมทริกซ์ของโมเดล AI ควอนไทซ์อย่าง NVFP4 ออกแบบมาใช้ส่วนนี้</dd></div>
@@ -175,7 +175,7 @@
             <div class="term"><dt>พรีฟิล <em>prefill</em></dt><dd>ช่วงอ่านพรอมต์ทั้งก้อนก่อนเริ่มพิมพ์ตอบ กินเวลาตอนข้อความยาว</dd></div>
             <div class="term"><dt>ดีโค้ด <em>decode</em></dt><dd>ช่วงพิมพ์คำตอบทีละโทเค็น</dd></div>
             <div class="term"><dt>chunked prefill</dt><dd>หั่นการอ่านพรอมต์ยาวเป็นท่อน เพื่อไม่ชนหน่วยความจำ</dd></div>
-            <div class="term"><dt>max-model-len</dt><dd>ความยาวบริบทยาวสุดที่อนุญาต ยิ่งยาวยิ่งจอง KV มาก</dd><p class="here">Qwen35 สูตรสตูดิโอ 131072 โทเค็น</p></div>
+            <div class="term"><dt>max-model-len</dt><dd>ความยาวบริบทยาวสุดที่อนุญาต ยิ่งยาวยิ่งจอง KV มาก</dd><p class="here">Qwen35 = 131072 · Qwen27 = 65536 · Nemotron = 500000</p></div>
             <div class="term"><dt>max-num-seqs</dt><dd>จำนวนบทสนทนาพร้อมกันที่เอนจินรับได้</dd></div>
             <div class="term"><dt>batch / max-num-batched-tokens</dt><dd>รวมงานหลายคำขอในรอบคำนวณเดียวกัน</dd></div>
             <div class="term"><dt>อุณหภูมิ <em>temperature</em></dt><dd>สุ่มคำตอบ ต่ำ = ตรง สูง = หลากหลาย</dd></div>
